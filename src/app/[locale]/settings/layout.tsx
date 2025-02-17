@@ -5,6 +5,13 @@ import { useParams, useRouter } from "next/navigation";
 import VerticalSidebar from "@/components/ui/header/vertical-header";
 import { useAuthStore } from "@/stores/authStore";
 
+function getGreeting() {
+	const hour = new Date().getHours();
+	if (hour < 12) return "Good morning";
+	if (hour < 18) return "Good afternoon";
+	return "Good evening";
+}
+
 export default function SettingsLayout({
 	children,
 }: {
@@ -12,27 +19,25 @@ export default function SettingsLayout({
 }) {
 	const params = useParams();
 	const locale = params.locale || "en";
-
-	// Destructure auth state and functions from the store
-	const { isCheckingAuth, checkUserAuth, isAuthenticatedUser } =
-		useAuthStore();
 	const router = useRouter();
+	const { user, isCheckingAuth, checkUserAuth, isAuthenticatedUser } =
+		useAuthStore();
 
-	// On mount, check user authentication
+	// Check user authentication on mount.
 	useEffect(() => {
 		(async () => {
 			await checkUserAuth();
 		})();
 	}, [checkUserAuth]);
 
-	// Once checking is complete, if not authenticated, redirect to login.
+	// Redirect to login if not authenticated once checking is complete.
 	useEffect(() => {
 		if (!isCheckingAuth && !isAuthenticatedUser) {
 			router.push(`/${locale}/login`);
 		}
 	}, [isCheckingAuth, isAuthenticatedUser, router, locale]);
 
-	// While the authentication check is in progress, show a loading state.
+	// While waiting for the auth check to finish, show a loading indicator.
 	if (isCheckingAuth) {
 		return (
 			<div className="flex items-center justify-center h-screen">
@@ -41,13 +46,23 @@ export default function SettingsLayout({
 		);
 	}
 
-	// Render the settings layout with a vertical navbar on the side.
 	return (
-		<div className="flex min-h-screen">
-			{/* Vertical Navbar (only visible on medium screens and up) */}
-			<VerticalSidebar />
-			{/* Main content area */}
-			<main className="flex-1">{children}</main>
+		<div className="min-h-screen bg-white dark:bg-black">
+			<div className="flex">
+				{/* Vertical Sidebar */}
+				<VerticalSidebar />
+				{/* Main content area */}
+				<main className="flex-1 p-8">
+					<div className="max-w-3xl p-6 mx-auto bg-white rounded-lg shadow dark:bg-stone-800">
+						{user && (
+							<h1 className="text-3xl font-bold text-black dark:text-white">
+								{getGreeting()}, {user.name}!
+							</h1>
+						)}
+						{children}
+					</div>
+				</main>
+			</div>
 		</div>
 	);
 }

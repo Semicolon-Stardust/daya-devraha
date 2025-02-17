@@ -1,4 +1,3 @@
-// src/components/settings/VerticalSidebar.tsx
 "use client";
 
 import { useRouter } from "next/navigation";
@@ -35,40 +34,33 @@ export default function VerticalSidebar() {
 		>
 			<div className="mb-8">
 				<h2 className="text-2xl font-bold text-gray-800 dark:text-white">
-					Settings
+					<Link href="/en/settings">Settings</Link>
 				</h2>
 			</div>
 			<nav className="flex flex-col gap-4">
 				<Link
-					href="/en/settings/profile"
+					href="/en/settings/delete-account"
 					className="text-lg text-gray-700 dark:text-white hover:text-black dark:hover:text-white"
 				>
-					Profile
+					Delete Account
 				</Link>
 				<Link
-					href="/en/settings/account"
+					href="/en/settings/password-change"
 					className="text-lg text-gray-700 dark:text-white hover:text-black dark:hover:text-white"
 				>
-					Account
+					Change Password
 				</Link>
 				<Link
-					href="/en/settings/preferences"
+					href="/en/settings/two-factor"
 					className="text-lg text-gray-700 dark:text-white hover:text-black dark:hover:text-white"
 				>
-					Preferences
+					Two-Factor Authentication
 				</Link>
-				<Link
-					href="/en/settings/notifications"
-					className="text-lg text-gray-700 dark:text-white hover:text-black dark:hover:text-white"
-				>
-					Notifications
-				</Link>
-				{/* Dummy links – update these as needed */}
 			</nav>
 			<div className="pt-8 mt-auto">
 				<ModeToggle />
 				<Button
-					variant="destructive"
+					variant="outline"
 					onClick={handleLogout}
 					className="w-full mt-4"
 				>
