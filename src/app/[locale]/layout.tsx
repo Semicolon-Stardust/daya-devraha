@@ -10,6 +10,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import Header from "@/components/ui/header/header";
 import Footer from "@/components/ui/footer/footer";
+import Providers from "./provider";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -57,16 +58,16 @@ export default async function LocaleLayout({
 				)}
 			>
 				<NextIntlClientProvider messages={messages}>
-					<ThemeProvider
-						attribute="class"
-						defaultTheme="system"
-						enableSystem
-						disableTransitionOnChange
-					>
-						<Header />
-						{children}
-						<Footer />
-					</ThemeProvider>
+					<Providers>
+						<ThemeProvider
+							attribute="class"
+							defaultTheme="system"
+							enableSystem
+							disableTransitionOnChange
+						>
+							{children}
+						</ThemeProvider>
+					</Providers>
 				</NextIntlClientProvider>
 			</body>
 		</html>
