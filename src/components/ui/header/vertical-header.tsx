@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/utils/mode-toggle";
@@ -34,27 +34,33 @@ export default function VerticalSidebar() {
 		>
 			<div className="mb-8">
 				<h2 className="text-2xl font-bold text-gray-800 dark:text-white">
-					<Link href="/en/settings">Settings</Link>
+					<Link href="/settings">Settings</Link>
 				</h2>
 			</div>
 			<nav className="flex flex-col gap-4">
 				<Link
-					href="/en/settings/delete-account"
+					href="/settings/delete-account"
 					className="text-lg text-gray-700 dark:text-white hover:text-black dark:hover:text-white"
 				>
 					Delete Account
 				</Link>
 				<Link
-					href="/en/settings/password-change"
+					href="/settings/password-change"
 					className="text-lg text-gray-700 dark:text-white hover:text-black dark:hover:text-white"
 				>
 					Change Password
 				</Link>
 				<Link
-					href="/en/settings/two-factor"
+					href="/settings/two-factor"
 					className="text-lg text-gray-700 dark:text-white hover:text-black dark:hover:text-white"
 				>
 					Two-Factor Authentication
+				</Link>
+				<Link
+					href="/settings/verify-email"
+					className="text-lg text-gray-700 dark:text-white hover:text-black dark:hover:text-white"
+				>
+					Verify Email
 				</Link>
 			</nav>
 			<div className="pt-8 mt-auto">

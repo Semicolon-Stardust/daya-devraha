@@ -36,7 +36,7 @@ const registerSchema = z
 
 type RegisterFormData = z.infer<typeof registerSchema>;
 
-// Framer Motion animation variants
+// Framer Motion animation variants.
 const containerVariants = {
 	hidden: { opacity: 0, y: 50 },
 	visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
@@ -55,7 +55,8 @@ export default function RegisterPage() {
 	} = useForm<RegisterFormData>({
 		resolver: zodResolver(registerSchema),
 	});
-	const { registerUser, isLoading, error } = useAuthStore();
+	const { registerUser, checkUserVerificationStatus, isLoading, error } =
+		useAuthStore();
 	const router = useRouter();
 	const params = useParams();
 	const locale = params.locale || "en";
@@ -71,7 +72,8 @@ export default function RegisterPage() {
 				data.dateOfBirth,
 				data.emergencyRecoveryContact
 			);
-			// Instead of immediately redirecting, set success flag to show the message.
+			// Update the verification status after registration.
+			await checkUserVerificationStatus();
 			setRegistrationSuccess(true);
 		} catch (err) {
 			console.error("Registration error:", err);

@@ -35,8 +35,13 @@ const fieldVariants = {
 };
 
 export default function LoginPage() {
-	const { loginUser, logoutUser, isLoading, error, isEmailVerified } =
-		useAuthStore();
+	const {
+		loginUser,
+		logoutUser,
+		checkUserVerificationStatus,
+		isLoading,
+		error,
+	} = useAuthStore();
 	const router = useRouter();
 	const params = useParams();
 	const locale = params.locale || "en";
@@ -54,18 +59,21 @@ export default function LoginPage() {
 		setLocalError(null);
 		try {
 			const result = await loginUser(data.email, data.password);
-			// If two-factor is required, redirect to the OTP verification page.
 			if (result.twoFactorRequired) {
 				router.push(`/${locale}/verify-otp`);
-			} else if (!isEmailVerified) {
-				// If email is not verified, show error and optionally clear session.
-				setLocalError(
-					"Your email address is not verified. Please check your inbox for the verification link."
-				);
-				// Optionally, you can clear any partial login state.
-				await logoutUser();
 			} else {
-				router.push(`/${locale}/settings`);
+				// Update verification status after login.
+				await checkUserVerificationStatus();
+				// Use getState() to retrieve the updated verification flag.
+				if (!useAuthStore.getState().isEmailVerified) {
+					setLocalError(
+						"Your email address is not verified. Please check your inbox for the verification link."
+					);
+					// Optionally clear any partial login state.
+					await logoutUser();
+				} else {
+					router.push(`/${locale}/settings`);
+				}
 			}
 		} catch {
 			// Global error state is already set in the store.

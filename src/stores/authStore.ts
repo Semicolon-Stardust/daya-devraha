@@ -66,8 +66,12 @@ interface AuthState {
 	toggleUserTwoFactor: () => Promise<void>;
 	deleteUserAccount: () => Promise<void>;
 	verifyUserOTP: (otp: string) => Promise<void>;
-	// NEW: Function to check email verification status
+	// Function to check email verification status
 	checkUserVerificationStatus: () => Promise<void>;
+	// New function: Verify user email using token from the verification URL
+	verifyUserEmail: (token: string) => Promise<boolean>;
+	// New function: Resend the verification email given a user's email address.
+	resendVerificationEmail: (email: string) => Promise<string>;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -85,7 +89,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 	isCheckingAuth: true,
 
 	// =========================
-	// Admin Functions (unchanged)
+	// Admin Functions
 	// =========================
 
 	registerAdmin: async (admin_name, admin_email, password, key) => {
@@ -319,10 +323,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 		}
 	},
 
-	// -------------------------
-	// New User Functions
-	// -------------------------
-
 	updateUserPassword: async (newPassword: string) => {
 		set({ isLoading: true, error: null });
 		try {
@@ -432,7 +432,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 		}
 	},
 
-	// New function to check email verification status.
 	checkUserVerificationStatus: async () => {
 		try {
 			const response = await apiClient.get("/user/verification-status", {
@@ -443,6 +442,52 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 			});
 		} catch (error: unknown) {
 			set({ isEmailVerified: false });
+		}
+	},
+
+	verifyUserEmail: async (token: string) => {
+		set({ isLoading: true, error: null });
+		try {
+			const response = await apiClient.get(
+				`/user/verify-email?token=${token}`,
+				{
+					withCredentials: true,
+				}
+			);
+			const verified = response.data.data.verified;
+			set({ isEmailVerified: verified, isLoading: false });
+			return verified;
+		} catch (error: unknown) {
+			let errorMessage = "Error verifying email";
+			if (error instanceof Error) {
+				errorMessage = error.message;
+			}
+			set({
+				error: errorMessage,
+				isLoading: false,
+				isEmailVerified: false,
+			});
+			throw error;
+		}
+	},
+
+	resendVerificationEmail: async (email: string) => {
+		set({ isLoading: true, error: null });
+		try {
+			const response = await apiClient.post(
+				"/user/resend-verification",
+				{ email },
+				{ withCredentials: true }
+			);
+			set({ isLoading: false });
+			return response.data.message;
+		} catch (error: unknown) {
+			let errorMessage = "Error resending verification email";
+			if (error instanceof Error) {
+				errorMessage = error.message;
+			}
+			set({ error: errorMessage, isLoading: false });
+			throw error;
 		}
 	},
 }));
