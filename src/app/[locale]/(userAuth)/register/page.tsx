@@ -1,7 +1,7 @@
-// /src/app/register/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -48,40 +48,40 @@ const fieldVariants = {
 };
 
 export default function RegisterPage() {
-	const {
-		register,
-		handleSubmit,
-		formState: { errors },
-	} = useForm<RegisterFormData>({
-		resolver: zodResolver(registerSchema),
-	});
-	const {
-		registerUser,
-		checkUserAuth,
-		isAuthenticatedUser,
-		isLoading,
-		error,
-	} = useAuthStore();
 	const router = useRouter();
 	const params = useParams();
 	const locale = params.locale || "en";
 	const [registrationSuccess, setRegistrationSuccess] = useState(false);
 
-	// Check if the user is already authenticated.
-	useEffect(() => {
-		checkUserAuth();
-	}, [checkUserAuth]);
+	const {
+		registerUser,
+		checkUserAuth,
+		isAuthenticatedUser: storeAuthenticated,
+	} = useAuthStore();
 
-	// If authenticated, redirect to settings.
+	// Use an object to configure the query.
+	const { data: authData } = useQuery({
+		queryKey: ["auth"],
+		queryFn: async () => {
+			const result = await checkUserAuth();
+			// Ensure that we always return an object—even if result is undefined.
+			return result ?? { isAuthenticated: false };
+		},
+		// Alternatively, you could also provide an initialData:
+		initialData: { isAuthenticated: false },
+	});
+
+	// Redirect if already authenticated.
 	useEffect(() => {
-		if (isAuthenticatedUser) {
+		if (authData?.isAuthenticated || storeAuthenticated) {
 			router.push(`/${locale}/settings`);
 		}
-	}, [isAuthenticatedUser, router, locale]);
+	}, [authData, storeAuthenticated, router, locale]);
 
-	const onSubmit = async (data: RegisterFormData) => {
-		try {
-			await registerUser(
+	// Use a mutation for registration.
+	const registerMutation = useMutation({
+		mutationFn: async (data: RegisterFormData) => {
+			return await registerUser(
 				data.name,
 				data.email,
 				data.password,
@@ -89,10 +89,22 @@ export default function RegisterPage() {
 				data.dateOfBirth,
 				data.emergencyRecoveryContact
 			);
+		},
+		onSuccess: () => {
 			setRegistrationSuccess(true);
-		} catch (err) {
-			console.error("Registration error:", err);
-		}
+		},
+	});
+
+	const {
+		register,
+		handleSubmit,
+		formState: { errors },
+	} = useForm<RegisterFormData>({
+		resolver: zodResolver(registerSchema),
+	});
+
+	const onSubmit = (data: RegisterFormData) => {
+		registerMutation.mutate(data);
 	};
 
 	if (registrationSuccess) {
@@ -256,11 +268,16 @@ export default function RegisterPage() {
 					</motion.div>
 					<motion.div variants={fieldVariants}>
 						<Button type="submit" className="w-full">
-							{isLoading ? "Registering..." : "Register"}
+							{registerMutation.isPending
+								? "Registering..."
+								: "Register"}
 						</Button>
 					</motion.div>
-					{error && (
-						<p className="text-center text-destructive">{error}</p>
+					{registerMutation.error && (
+						<p className="text-center text-destructive">
+							{(registerMutation.error as Error)?.message ||
+								"Registration failed."}
+						</p>
 					)}
 				</form>
 			</motion.div>

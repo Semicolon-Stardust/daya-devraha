@@ -1,7 +1,7 @@
-// /src/app/login/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -35,30 +35,56 @@ const fieldVariants = {
 };
 
 export default function LoginPage() {
-	const {
-		loginUser,
-		logoutUser,
-		checkUserAuth,
-		isAuthenticatedUser,
-		isLoading,
-		error,
-	} = useAuthStore();
 	const router = useRouter();
 	const params = useParams();
 	const locale = params.locale || "en";
 	const [localError, setLocalError] = useState<string | null>(null);
 
-	// Check authentication on mount.
-	useEffect(() => {
-		checkUserAuth();
-	}, [checkUserAuth]);
+	const {
+		loginUser,
+		logoutUser,
+		checkUserAuth,
+		checkUserVerificationStatus, // new function to check email verification status
+		isAuthenticatedUser: storeAuthenticated,
+	} = useAuthStore();
 
-	// If already authenticated, redirect to settings.
+	// Use an object to configure the query.
+	const { data: authData } = useQuery({
+		queryKey: ["auth"],
+		queryFn: async () => {
+			const result = await checkUserAuth();
+			return result ?? { isAuthenticated: false };
+		},
+	});
+
+	// Redirect if already authenticated.
 	useEffect(() => {
-		if (isAuthenticatedUser) {
+		if (authData?.isAuthenticated || storeAuthenticated) {
 			router.push(`/${locale}/settings`);
 		}
-	}, [isAuthenticatedUser, router, locale]);
+	}, [authData, storeAuthenticated, router, locale]);
+
+	// Use a mutation for login action.
+	const loginMutation = useMutation({
+		mutationFn: async (data: LoginFormData) => {
+			return await loginUser(data.email, data.password);
+		},
+		onSuccess: async (result) => {
+			// Call checkUserVerificationStatus to update isEmailVerified in store.
+			await checkUserVerificationStatus();
+			// Now check if the user is verified
+			if (result.twoFactorRequired) {
+				router.push(`/${locale}/verify-otp`);
+			} else if (!useAuthStore.getState().isEmailVerified) {
+				setLocalError(
+					"Your email address is not verified. Please check your inbox for the verification link."
+				);
+				await logoutUser();
+			} else {
+				router.push(`/${locale}/settings`);
+			}
+		},
+	});
 
 	const {
 		register,
@@ -70,21 +96,7 @@ export default function LoginPage() {
 
 	const onSubmit = async (data: LoginFormData) => {
 		setLocalError(null);
-		try {
-			const result = await loginUser(data.email, data.password);
-			if (result.twoFactorRequired) {
-				router.push(`/${locale}/verify-otp`);
-			} else if (!useAuthStore.getState().isEmailVerified) {
-				setLocalError(
-					"Your email address is not verified. Please check your inbox for the verification link."
-				);
-				await logoutUser();
-			} else {
-				router.push(`/${locale}/settings`);
-			}
-		} catch {
-			// Global error state is handled in the store.
-		}
+		loginMutation.mutate(data);
 	};
 
 	return (
@@ -147,12 +159,16 @@ export default function LoginPage() {
 					</motion.div>
 					<motion.div variants={fieldVariants}>
 						<Button type="submit" className="w-full">
-							{isLoading ? "Logging in..." : "Login"}
+							{loginMutation.isPending
+								? "Logging in..."
+								: "Login"}
 						</Button>
 					</motion.div>
-					{(error || localError) && (
+					{(loginMutation.error || localError) && (
 						<p className="text-center text-destructive">
-							{localError || error}
+							{localError ||
+								(loginMutation.error as Error)?.message ||
+								"Login failed."}
 						</p>
 					)}
 				</form>

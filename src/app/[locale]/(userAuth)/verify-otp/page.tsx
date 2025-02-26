@@ -1,36 +1,67 @@
-// /src/app/auth/verify-otp/page.tsx
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useAuthStore } from "@/stores/authStore";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { useMutation } from "@tanstack/react-query";
+import { useForm, Controller } from "react-hook-form";
+import {
+	InputOTP,
+	InputOTPGroup,
+	InputOTPSeparator,
+	InputOTPSlot,
+} from "@/components/ui/input-otp";
 
 const containerVariants = {
 	hidden: { opacity: 0, y: 50 },
 	visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
 };
 
+interface OTPFormData {
+	otp: string;
+}
+
 export default function VerifyOTPPage() {
 	const router = useRouter();
 	const params = useParams();
 	const locale = params.locale || "en";
-	const { verifyUserOTP, isLoading } = useAuthStore();
-	const [otp, setOtp] = useState("");
+	// Destructure verifyUserOTP and pendingUserEmail from the auth store.
+	const { verifyUserOTP, pendingUserEmail } = useAuthStore();
+	const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-	const handleVerify = async () => {
-		if (otp.length !== 6) {
-			alert("Please enter a valid 6-digit OTP");
-			return;
+	const {
+		control,
+		handleSubmit,
+		formState: { errors },
+	} = useForm<OTPFormData>({
+		defaultValues: { otp: "" },
+	});
+
+	// If there's no pending user, redirect away (e.g. to the login page)
+	useEffect(() => {
+		if (!pendingUserEmail) {
+			router.push(`/${locale}/login`);
 		}
-		try {
-			await verifyUserOTP(otp);
-			alert("OTP verified successfully!");
-			router.push(`/${locale}/settings`);
-		} catch (error) {
-			alert("OTP verification failed. Please try again.");
-		}
+	}, [pendingUserEmail, router, locale]);
+
+	const verifyMutation = useMutation({
+		mutationFn: (otpCode: string) => verifyUserOTP(otpCode),
+		onSuccess: () => {
+			setSuccessMessage("OTP verified successfully!");
+			setTimeout(() => {
+				router.push(`/${locale}/settings`);
+			}, 2000);
+		},
+		onError: () => {
+			// Error message is handled below.
+		},
+	});
+
+	const onSubmit = (data: OTPFormData) => {
+		setSuccessMessage(null);
+		verifyMutation.mutate(data.otp);
 	};
 
 	return (
@@ -47,17 +78,72 @@ export default function VerifyOTPPage() {
 				<p className="mb-4 text-center text-gray-600 dark:text-gray-300">
 					Enter the 6-digit OTP sent to your email.
 				</p>
-				<input
-					type="text"
-					value={otp}
-					onChange={(e) => setOtp(e.target.value)}
-					className="w-full p-2 text-center border rounded"
-					maxLength={6}
-					placeholder="Enter OTP"
-				/>
-				<Button onClick={handleVerify} className="w-full mt-4">
-					{isLoading ? "Verifying..." : "Verify OTP"}
-				</Button>
+				<form
+					onSubmit={handleSubmit(onSubmit)}
+					className="flex flex-col items-center space-y-4"
+				>
+					<Controller
+						name="otp"
+						control={control}
+						rules={{
+							required: "OTP is required",
+							minLength: {
+								value: 6,
+								message: "OTP must be 6 digits",
+							},
+							maxLength: {
+								value: 6,
+								message: "OTP must be 6 digits",
+							},
+							pattern: {
+								value: /^[0-9]{6}$/,
+								message: "OTP must contain only numbers",
+							},
+						}}
+						render={({ field, fieldState: { error } }) => (
+							<div>
+								<InputOTP
+									maxLength={6}
+									value={field.value}
+									onChange={field.onChange}
+								>
+									<InputOTPGroup>
+										<InputOTPSlot index={0} />
+										<InputOTPSlot index={1} />
+										<InputOTPSlot index={2} />
+									</InputOTPGroup>
+									<InputOTPSeparator />
+									<InputOTPGroup>
+										<InputOTPSlot index={3} />
+										<InputOTPSlot index={4} />
+										<InputOTPSlot index={5} />
+									</InputOTPGroup>
+								</InputOTP>
+								{error && (
+									<p className="text-center text-destructive text-sm">
+										{error.message}
+									</p>
+								)}
+							</div>
+						)}
+					/>
+					{verifyMutation.error && !errors.otp && (
+						<p className="text-center text-destructive text-sm">
+							{(verifyMutation.error as Error)?.message ||
+								"OTP verification failed"}
+						</p>
+					)}
+					{successMessage && (
+						<p className="text-center text-success text-sm">
+							{successMessage}
+						</p>
+					)}
+					<Button type="submit" className="w-full mt-4">
+						{verifyMutation.isPending
+							? "Verifying..."
+							: "Verify OTP"}
+					</Button>
+				</form>
 			</div>
 		</motion.div>
 	);
