@@ -7,7 +7,7 @@
 		"contactLink": "Contact Us"
 	},
 	"Header": {
-		"logo": "Component Catalogue",
+		"logo": "Daya Devraha",
 		"links": {
 			"home": "Home",
 			"about": "About",
@@ -20,151 +20,8 @@
 			"system": "System"
 		}
 	},
-	"HomePage": {
-		"title": "Bye, world!",
-		"heroSection": {
-			"carousel": {
-				"1": {
-					"image": "https://images.unsplash.com/photo-1475359524104-d101d02a042b",
-					"altText": "Slide 1",
-					"heading": "Welcome to Our Platform",
-					"paragraph": "This is a sample description for Slide 1."
-				},
-				"2": {
-					"image": "https://images.unsplash.com/photo-1485134532658-d720895a3b5e",
-					"altText": "Slide 2",
-					"heading": "Discover More Features",
-					"paragraph": "This is a sample description for Slide 2."
-				},
-				"3": {
-					"image": "https://images.unsplash.com/photo-1515377905703-c4788e51af15",
-					"altText": "Slide 3",
-					"heading": "Join Us Today",
-					"paragraph": "This is a sample description for Slide 3."
-				}
-			},
-			"title": "Component Catalogue",
-			"description": "Beautifully designed components suitable for your suite of websites.",
-			"cta": "Explore Sections"
-		},
-		"navigation": {
-			"title": "Browse Our Component Catalogue",
-			"description": "Choose a component and send us the details via WhatsApp, Mail, or Jira.",
-			"howToSend": {
-				"title": "How to Send Your Selection",
-				"description": "Once you’ve selected a component, send us the component label along with the required data via WhatsApp, Mail, or Jira."
-			},
-			"sections": {
-				"buttons": {
-					"title": "Buttons",
-					"description": "Pre-designed buttons with multiple variants.",
-					"href": "/buttons"
-				},
-				"heroSections": {
-					"title": "Hero Sections",
-					"description": "Pre-styled hero sections with dynamic layouts.",
-					"href": "/hero-sections"
-				},
-				"imageSections": {
-					"title": "Image Sections",
-					"description": "Layouts focusing on images and visual storytelling.",
-					"href": "/image-sections"
-				},
-				"miscSections": {
-					"title": "Misc Sections",
-					"description": "Accordions, CTA sections, and other reusable elements.",
-					"href": "/misc-sections"
-				}
-			}
-		}
-	},
-	"ButtonsDemo": {
-		"title": "Button Variants & Effects",
-		"description": "Explore different button styles, effects, and sizes available in our component library.",
-		"variants": {
-			"title": "Button Variants",
-			"default": "Default",
-			"destructive": "Destructive",
-			"outline": "Outline",
-			"secondary": "Secondary",
-			"ghost": "Ghost",
-			"link": "Link"
-		},
-		"effects": {
-			"title": "Button Effects",
-			"expandIcon": "Expand Icon",
-			"ringHover": "Ring Hover",
-			"shine": "Shine",
-			"shineHover": "Shine Hover",
-			"gooeyRight": "Gooey Right",
-			"gooeyLeft": "Gooey Left",
-			"underline": "Underline",
-			"hoverUnderline": "Hover Underline"
-		},
-		"sizes": {
-			"title": "Button Sizes",
-			"default": "Default",
-			"sm": "Small",
-			"lg": "Large",
-			"icon": "Icon"
-		}
-	},
-	"AboutPage": {
-		"title": "About us",
-		"home": "Go to the home page"
-	},
-	"Login": {
-		"title": "Login",
-		"description": "Select your login type and enter your credentials.",
-		"userLogin": "User Login",
-		"adminLogin": "Admin Login",
-		"email": "Email",
-		"password": "Password",
-		"username": "Username",
-		"forgotPassword": "Forgot Password?",
-		"loginAsUser": "Login as User",
-		"loginAsAdmin": "Login as Admin",
-		"newUser": "New User?",
-		"notAdmin": "Not an Admin?"
-	},
-	"SignUp": {
-		"title": "Sign Up",
-		"description": "Enter your details to create an account.",
-		"fullName": "Full Name",
-		"userName": "Username",
-		"email": "Email",
-		"password": "Password",
-		"confirmPassword": "Confirm Password",
-		"isAdmin": "Is Admin?",
-		"signUpButton": "Sign Up",
-		"alreadyHaveAccount": "Already have an account?",
-		"logIn": "Log In",
-		"adminKey": "Admin Key"
-	},
-	"FrequentlyAskedQuestions": {
-		"title": "Frequently Asked Questions",
-		"description": "Find answers to the most commonly asked questions about our platform.",
-		"questions": {
-			"1": {
-				"question": "What is the purpose of this platform?",
-				"answer": "The purpose of this platform is to provide a template for building web applications and websites with a modern frontend stack and best practices."
-			},
-			"2": {
-				"question": "What technologies are used in this template?",
-				"answer": "This template uses Next.js, TypeScript, and Tailwind CSS for the frontend, and Jest and React Testing Library for testing."
-			},
-			"3": {
-				"question": "How can I contribute to this project?",
-				"answer": "You can contribute to this project by forking the repository on GitHub, making your changes, and submitting a pull request."
-			},
-			"4": {
-				"question": "Is this template free to use?",
-				"answer": "Yes, this template is free to use for personal and commercial projects. However, attribution is appreciated."
-			}
-		}
-	},
 	"Footer": {
-		"logo": "Nextjs Frontend Template",
+		"logo": "Daya Devraha",
 		"description": "This is a Nextjs frontend template with TypeScript and Tailwind CSS for rapid development of web applications and websites with a modern frontend stack and best practices.",
 		"sections": {
 			"company": {

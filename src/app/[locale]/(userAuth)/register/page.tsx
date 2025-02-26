@@ -1,5 +1,7 @@
+// /src/app/register/page.tsx
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -53,12 +55,11 @@ export default function RegisterPage() {
 	} = useForm<RegisterFormData>({
 		resolver: zodResolver(registerSchema),
 	});
-
-	// Destructure the registerUser function from the global auth store.
 	const { registerUser, isLoading, error } = useAuthStore();
 	const router = useRouter();
 	const params = useParams();
 	const locale = params.locale || "en";
+	const [registrationSuccess, setRegistrationSuccess] = useState(false);
 
 	const onSubmit = async (data: RegisterFormData) => {
 		try {
@@ -70,13 +71,44 @@ export default function RegisterPage() {
 				data.dateOfBirth,
 				data.emergencyRecoveryContact
 			);
-			// After successful registration, redirect to the dashboard.
-			router.push(`/${locale}/login`);
+			// Instead of immediately redirecting, set success flag to show the message.
+			setRegistrationSuccess(true);
 		} catch (err) {
-			// Errors are set in the store; you can also handle additional local actions if needed.
 			console.error("Registration error:", err);
 		}
 	};
+
+	if (registrationSuccess) {
+		return (
+			<motion.div
+				className="flex items-center justify-center min-h-screen p-4 bg-background dark:bg-background-dark"
+				initial="hidden"
+				animate="visible"
+				variants={containerVariants}
+			>
+				<motion.div
+					className="w-full max-w-md p-8 space-y-6 rounded-lg shadow bg-card"
+					variants={containerVariants}
+				>
+					<motion.h1
+						className="text-3xl font-bold text-center text-primary"
+						variants={fieldVariants}
+					>
+						Registration Successful!
+					</motion.h1>
+					<p className="text-center">
+						Please check your email for a verification link before
+						logging in.
+					</p>
+					<div className="flex justify-center">
+						<Button onClick={() => router.push(`/${locale}/login`)}>
+							Go to Login
+						</Button>
+					</div>
+				</motion.div>
+			</motion.div>
+		);
+	}
 
 	return (
 		<motion.div

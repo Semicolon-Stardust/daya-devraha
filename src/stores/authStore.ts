@@ -1,4 +1,5 @@
-// /src/stores/authStore.ts
+"use client";
+
 import { create } from "zustand";
 import apiClient from "@/apiClient";
 
@@ -15,6 +16,7 @@ interface User {
 	twoFactorEnabled: boolean;
 	dateOfBirth?: string;
 	emergencyRecoveryContact?: string;
+	isVerified: boolean;
 }
 
 interface AuthState {
@@ -24,6 +26,8 @@ interface AuthState {
 	// User state
 	user: User | null;
 	isAuthenticatedUser: boolean;
+	// New flag for email verification (can be derived from user.isVerified)
+	isEmailVerified: boolean;
 	// A temporary email stored when 2FA is required
 	pendingUserEmail: string | null;
 	// Global flags
@@ -62,6 +66,8 @@ interface AuthState {
 	toggleUserTwoFactor: () => Promise<void>;
 	deleteUserAccount: () => Promise<void>;
 	verifyUserOTP: (otp: string) => Promise<void>;
+	// NEW: Function to check email verification status
+	checkUserVerificationStatus: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -71,6 +77,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 	// Initial state for user
 	user: null,
 	isAuthenticatedUser: false,
+	isEmailVerified: false,
 	pendingUserEmail: null,
 	// Common flags
 	error: null,
@@ -197,7 +204,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 	) => {
 		set({ isLoading: true, error: null });
 		try {
-			const response = await apiClient.post("/auth/register", {
+			const response = await apiClient.post("/user/register", {
 				name,
 				email,
 				password,
@@ -209,6 +216,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 				user: response.data.data,
 				isAuthenticatedUser: true,
 				isLoading: false,
+				isEmailVerified: response.data.data.isVerified,
 			});
 		} catch (error: unknown) {
 			let errorMessage = "Error registering user";
@@ -223,11 +231,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 	loginUser: async (email, password) => {
 		set({ isLoading: true, error: null });
 		try {
-			const response = await apiClient.post("/auth/login", {
+			const response = await apiClient.post("/user/login", {
 				email,
 				password,
 			});
-			// If backend indicates that 2FA is required, store the pending email.
 			if (response.data.data.twoFactorRequired) {
 				set({ pendingUserEmail: email, isLoading: false });
 				return { twoFactorRequired: true };
@@ -237,6 +244,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 					isAuthenticatedUser: true,
 					isLoading: false,
 					pendingUserEmail: null,
+					isEmailVerified: response.data.data.isVerified,
 				});
 				return { twoFactorRequired: false };
 			}
@@ -253,11 +261,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 	logoutUser: async () => {
 		set({ isLoading: true, error: null });
 		try {
-			await apiClient.post("/auth/logout");
+			await apiClient.post("/user/logout");
 			set({
 				user: null,
 				isAuthenticatedUser: false,
 				isLoading: false,
+				isEmailVerified: false,
 			});
 		} catch (error: unknown) {
 			let errorMessage = "Error logging out user";
@@ -272,36 +281,40 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 	checkUserAuth: async () => {
 		set({ isCheckingAuth: true });
 		try {
-			const response = await apiClient.get("/auth/validate-token", {
+			const response = await apiClient.get("/user/validate-token", {
 				withCredentials: true,
 			});
 			set({
 				user: response.data.data,
 				isAuthenticatedUser: true,
 				isCheckingAuth: false,
+				isEmailVerified: response.data.data.isVerified,
 			});
 		} catch (error: unknown) {
 			set({
 				user: null,
 				isAuthenticatedUser: false,
 				isCheckingAuth: false,
+				isEmailVerified: false,
 			});
 		}
 	},
 
 	checkUserProfile: async () => {
 		try {
-			const response = await apiClient.get("/auth/profile", {
+			const response = await apiClient.get("/user/profile", {
 				withCredentials: true,
 			});
 			set({
 				user: response.data.data,
 				isAuthenticatedUser: true,
+				isEmailVerified: response.data.data.isVerified,
 			});
 		} catch (error: unknown) {
 			set({
 				user: null,
 				isAuthenticatedUser: false,
+				isEmailVerified: false,
 			});
 		}
 	},
@@ -314,7 +327,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 		set({ isLoading: true, error: null });
 		try {
 			await apiClient.put(
-				"/auth/update-profile",
+				"/user/update-profile",
 				{ password: newPassword },
 				{ withCredentials: true }
 			);
@@ -371,13 +384,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 	deleteUserAccount: async () => {
 		set({ isLoading: true, error: null });
 		try {
-			await apiClient.delete("/auth/delete-account", {
+			await apiClient.delete("/user/delete-account", {
 				withCredentials: true,
 			});
 			set({
 				user: null,
 				isAuthenticatedUser: false,
 				isLoading: false,
+				isEmailVerified: false,
 			});
 		} catch (error: unknown) {
 			let errorMessage = "Error deleting account";
@@ -389,11 +403,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 		}
 	},
 
-	// New function to verify OTP.
 	verifyUserOTP: async (otp: string) => {
 		set({ isLoading: true, error: null });
 		try {
-			// Use the user email from state if available, otherwise use the pending email.
 			const email = get().user?.email || get().pendingUserEmail;
 			if (!email) {
 				throw new Error("No email available for OTP verification.");
@@ -403,12 +415,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 				{ email, otp },
 				{ withCredentials: true }
 			);
-			// Assume the backend returns the updated user data.
 			set({
 				user: response.data.data,
 				isAuthenticatedUser: true,
 				isLoading: false,
 				pendingUserEmail: null,
+				isEmailVerified: response.data.data.isVerified,
 			});
 		} catch (error: unknown) {
 			let errorMessage = "Error verifying OTP";
@@ -417,6 +429,20 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 			}
 			set({ error: errorMessage, isLoading: false });
 			throw error;
+		}
+	},
+
+	// New function to check email verification status.
+	checkUserVerificationStatus: async () => {
+		try {
+			const response = await apiClient.get("/user/verification-status", {
+				withCredentials: true,
+			});
+			set({
+				isEmailVerified: response.data.data.verified,
+			});
+		} catch (error: unknown) {
+			set({ isEmailVerified: false });
 		}
 	},
 }));

@@ -1,6 +1,7 @@
 // /src/app/login/page.tsx
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -34,10 +35,12 @@ const fieldVariants = {
 };
 
 export default function LoginPage() {
-	const { loginUser, isLoading, error } = useAuthStore();
+	const { loginUser, logoutUser, isLoading, error, isEmailVerified } =
+		useAuthStore();
 	const router = useRouter();
 	const params = useParams();
 	const locale = params.locale || "en";
+	const [localError, setLocalError] = useState<string | null>(null);
 
 	const {
 		register,
@@ -48,11 +51,19 @@ export default function LoginPage() {
 	});
 
 	const onSubmit = async (data: LoginFormData) => {
+		setLocalError(null);
 		try {
 			const result = await loginUser(data.email, data.password);
 			// If two-factor is required, redirect to the OTP verification page.
 			if (result.twoFactorRequired) {
 				router.push(`/${locale}/verify-otp`);
+			} else if (!isEmailVerified) {
+				// If email is not verified, show error and optionally clear session.
+				setLocalError(
+					"Your email address is not verified. Please check your inbox for the verification link."
+				);
+				// Optionally, you can clear any partial login state.
+				await logoutUser();
 			} else {
 				router.push(`/${locale}/settings`);
 			}
@@ -124,8 +135,11 @@ export default function LoginPage() {
 							{isLoading ? "Logging in..." : "Login"}
 						</Button>
 					</motion.div>
-					{error && (
-						<p className="text-center text-destructive">{error}</p>
+					{/* Display error from global store or local error */}
+					{(error || localError) && (
+						<p className="text-center text-destructive">
+							{localError || error}
+						</p>
 					)}
 				</form>
 			</motion.div>

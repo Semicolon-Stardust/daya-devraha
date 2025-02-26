@@ -20,8 +20,13 @@ export default function SettingsLayout({
 	const params = useParams();
 	const locale = params.locale || "en";
 	const router = useRouter();
-	const { user, isCheckingAuth, checkUserAuth, isAuthenticatedUser } =
-		useAuthStore();
+	const {
+		user,
+		isCheckingAuth,
+		isAuthenticatedUser,
+		checkUserAuth,
+		checkUserProfile,
+	} = useAuthStore();
 
 	// Check user authentication on mount.
 	useEffect(() => {
@@ -29,6 +34,13 @@ export default function SettingsLayout({
 			await checkUserAuth();
 		})();
 	}, [checkUserAuth]);
+
+	// Once authenticated, fetch the user profile to get the username.
+	useEffect(() => {
+		if (isAuthenticatedUser) {
+			checkUserProfile();
+		}
+	}, [isAuthenticatedUser, checkUserProfile]);
 
 	// Redirect to login if not authenticated once checking is complete.
 	useEffect(() => {
@@ -56,7 +68,8 @@ export default function SettingsLayout({
 					<div className="max-w-3xl p-6 mx-auto bg-white rounded-lg shadow dark:bg-stone-800">
 						{user && (
 							<h1 className="text-3xl font-bold text-black dark:text-white">
-								{getGreeting()}, {user.name}!
+								{getGreeting()},{" "}
+								{user?.name?.split(" ")[0] || "User"}
 							</h1>
 						)}
 						{children}
