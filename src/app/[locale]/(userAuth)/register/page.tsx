@@ -1,7 +1,7 @@
 // /src/app/register/page.tsx
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -55,12 +55,29 @@ export default function RegisterPage() {
 	} = useForm<RegisterFormData>({
 		resolver: zodResolver(registerSchema),
 	});
-	const { registerUser, checkUserVerificationStatus, isLoading, error } =
-		useAuthStore();
+	const {
+		registerUser,
+		checkUserAuth,
+		isAuthenticatedUser,
+		isLoading,
+		error,
+	} = useAuthStore();
 	const router = useRouter();
 	const params = useParams();
 	const locale = params.locale || "en";
 	const [registrationSuccess, setRegistrationSuccess] = useState(false);
+
+	// Check if the user is already authenticated.
+	useEffect(() => {
+		checkUserAuth();
+	}, [checkUserAuth]);
+
+	// If authenticated, redirect to settings.
+	useEffect(() => {
+		if (isAuthenticatedUser) {
+			router.push(`/${locale}/settings`);
+		}
+	}, [isAuthenticatedUser, router, locale]);
 
 	const onSubmit = async (data: RegisterFormData) => {
 		try {
@@ -72,8 +89,6 @@ export default function RegisterPage() {
 				data.dateOfBirth,
 				data.emergencyRecoveryContact
 			);
-			// Update the verification status after registration.
-			await checkUserVerificationStatus();
 			setRegistrationSuccess(true);
 		} catch (err) {
 			console.error("Registration error:", err);

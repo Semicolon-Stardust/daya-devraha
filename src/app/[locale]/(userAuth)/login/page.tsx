@@ -1,7 +1,7 @@
 // /src/app/login/page.tsx
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -38,7 +38,8 @@ export default function LoginPage() {
 	const {
 		loginUser,
 		logoutUser,
-		checkUserVerificationStatus,
+		checkUserAuth,
+		isAuthenticatedUser,
 		isLoading,
 		error,
 	} = useAuthStore();
@@ -46,6 +47,18 @@ export default function LoginPage() {
 	const params = useParams();
 	const locale = params.locale || "en";
 	const [localError, setLocalError] = useState<string | null>(null);
+
+	// Check authentication on mount.
+	useEffect(() => {
+		checkUserAuth();
+	}, [checkUserAuth]);
+
+	// If already authenticated, redirect to settings.
+	useEffect(() => {
+		if (isAuthenticatedUser) {
+			router.push(`/${locale}/settings`);
+		}
+	}, [isAuthenticatedUser, router, locale]);
 
 	const {
 		register,
@@ -61,22 +74,16 @@ export default function LoginPage() {
 			const result = await loginUser(data.email, data.password);
 			if (result.twoFactorRequired) {
 				router.push(`/${locale}/verify-otp`);
+			} else if (!useAuthStore.getState().isEmailVerified) {
+				setLocalError(
+					"Your email address is not verified. Please check your inbox for the verification link."
+				);
+				await logoutUser();
 			} else {
-				// Update verification status after login.
-				await checkUserVerificationStatus();
-				// Use getState() to retrieve the updated verification flag.
-				if (!useAuthStore.getState().isEmailVerified) {
-					setLocalError(
-						"Your email address is not verified. Please check your inbox for the verification link."
-					);
-					// Optionally clear any partial login state.
-					await logoutUser();
-				} else {
-					router.push(`/${locale}/settings`);
-				}
+				router.push(`/${locale}/settings`);
 			}
 		} catch {
-			// Global error state is already set in the store.
+			// Global error state is handled in the store.
 		}
 	};
 
@@ -143,7 +150,6 @@ export default function LoginPage() {
 							{isLoading ? "Logging in..." : "Login"}
 						</Button>
 					</motion.div>
-					{/* Display error from global store or local error */}
 					{(error || localError) && (
 						<p className="text-center text-destructive">
 							{localError || error}
