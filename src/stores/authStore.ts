@@ -72,6 +72,14 @@ interface AuthState {
 	verifyUserEmail: (token: string) => Promise<boolean>;
 	// New function: Resend the verification email given a user's email address.
 	resendVerificationEmail: (email: string) => Promise<string>;
+	// NEW: Forgot Password function
+	forgotPassword: (email: string) => Promise<string>;
+	// NEW: Reset Password function
+	resetPassword: (
+		token: string,
+		newPassword: string,
+		confirmPassword: string
+	) => Promise<string>;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -483,6 +491,53 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 			return response.data.message;
 		} catch (error: unknown) {
 			let errorMessage = "Error resending verification email";
+			if (error instanceof Error) {
+				errorMessage = error.message;
+			}
+			set({ error: errorMessage, isLoading: false });
+			throw error;
+		}
+	},
+
+	// =========================
+	// New Functions
+	// =========================
+
+	forgotPassword: async (email: string) => {
+		set({ isLoading: true, error: null });
+		try {
+			const response = await apiClient.post(
+				"http://localhost:4000/api/v1/user/forgot-password",
+				{ email }
+			);
+			set({ isLoading: false });
+			return response.data.message;
+		} catch (error: unknown) {
+			let errorMessage = "Error sending password reset email";
+			if (error instanceof Error) {
+				errorMessage = error.message;
+			}
+			set({ error: errorMessage, isLoading: false });
+			throw error;
+		}
+	},
+
+	resetPassword: async (
+		token: string,
+		newPassword: string,
+		confirmPassword: string
+	) => {
+		set({ isLoading: true, error: null });
+		try {
+			const response = await apiClient.post(
+				`http://localhost:4000/api/v1/user/reset-password?token=${token}`,
+				{ token, newPassword, confirmPassword },
+				{ withCredentials: true }
+			);
+			set({ isLoading: false });
+			return response.data.message;
+		} catch (error: unknown) {
+			let errorMessage = "Error resetting password";
 			if (error instanceof Error) {
 				errorMessage = error.message;
 			}

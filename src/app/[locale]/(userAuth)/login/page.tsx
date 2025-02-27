@@ -172,6 +172,17 @@ export default function LoginPage() {
 						</p>
 					)}
 				</form>
+				{/* Forgot Password Link Button */}
+				<div className="mt-4 text-center">
+					<Button
+						variant="link"
+						onClick={() =>
+							router.push(`/${locale}/forgot-password`)
+						}
+					>
+						Forgot Password?
+					</Button>
+				</div>
 			</motion.div>
 		</motion.div>
 	);
