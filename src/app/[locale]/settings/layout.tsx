@@ -17,18 +17,30 @@ export default function SettingsLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const params = useParams();
-  const locale = params.locale || 'en';
-  const router = useRouter();
-  const { user, isCheckingAuth, checkUserAuth, isAuthenticatedUser } =
-    useAuthStore();
+	const params = useParams();
+	const locale = params.locale || "en";
+	const router = useRouter();
+	const {
+		user,
+		isCheckingAuth,
+		isAuthenticatedUser,
+		checkUserAuth,
+		checkUserProfile,
+	} = useAuthStore();
 
-  // Check user authentication on mount.
-  useEffect(() => {
-    (async () => {
-      await checkUserAuth();
-    })();
-  }, [checkUserAuth]);
+	// Check user authentication on mount.
+	useEffect(() => {
+		(async () => {
+			await checkUserAuth();
+		})();
+	}, [checkUserAuth]);
+
+	// Once authenticated, fetch the user profile to get the username.
+	useEffect(() => {
+		if (isAuthenticatedUser) {
+			checkUserProfile();
+		}
+	}, [isAuthenticatedUser, checkUserProfile]);
 
   // Redirect to login if not authenticated once checking is complete.
   useEffect(() => {
@@ -46,23 +58,24 @@ export default function SettingsLayout({
     );
   }
 
-  return (
-    <div className="min-h-screen bg-white dark:bg-black">
-      <div className="flex">
-        {/* Vertical Sidebar */}
-        <VerticalSidebar />
-        {/* Main content area */}
-        <main className="flex-1 p-8">
-          <div className="mx-auto max-w-3xl rounded-lg bg-white p-6 shadow dark:bg-stone-800">
-            {user && (
-              <h1 className="text-3xl font-bold text-black dark:text-white">
-                {getGreeting()}, {user.name}!
-              </h1>
-            )}
-            {children}
-          </div>
-        </main>
-      </div>
-    </div>
-  );
+	return (
+		<div className="min-h-screen bg-white dark:bg-black">
+			<div className="flex">
+				{/* Vertical Sidebar */}
+				<VerticalSidebar />
+				{/* Main content area */}
+				<main className="flex-1 p-8">
+					<div className="max-w-3xl p-6 mx-auto bg-white rounded-lg shadow dark:bg-stone-800">
+						{user && (
+							<h1 className="text-3xl font-bold text-black dark:text-white">
+								{getGreeting()},{" "}
+								{user?.name?.split(" ")[0] || "User"}
+							</h1>
+						)}
+						{children}
+					</div>
+				</main>
+			</div>
+		</div>
+	);
 }
