@@ -1,5 +1,5 @@
 // src/hooks/useAuth.ts
-import { useAuthStore } from "@/stores/authStore";
+import { useAuthStore } from '@/stores/authStore';
 
 export const useAuth = () => {
   const token = useAuthStore((state) => state.token);
