@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useRouter } from "next/navigation";
 import { Link } from "@/i18n/routing";
@@ -8,22 +8,22 @@ import { ModeToggle } from "@/components/utils/mode-toggle";
 import { useAuthStore } from "@/stores/authStore";
 
 const sidebarVariants = {
-	hidden: { x: -250, opacity: 0 },
-	visible: {
-		x: 0,
-		opacity: 1,
-		transition: { duration: 0.5, ease: "easeInOut" },
-	},
+  hidden: { x: -250, opacity: 0 },
+  visible: {
+    x: 0,
+    opacity: 1,
+    transition: { duration: 0.5, ease: 'easeInOut' },
+  },
 };
 
 export default function VerticalSidebar() {
-	const router = useRouter();
-	const { logoutUser } = useAuthStore();
+  const router = useRouter();
+  const { logoutUser } = useAuthStore();
 
-	const handleLogout = async () => {
-		await logoutUser();
-		router.push("/en/login");
-	};
+  const handleLogout = async () => {
+    await logoutUser();
+    router.push('/en/login');
+  };
 
 	return (
 		<motion.aside

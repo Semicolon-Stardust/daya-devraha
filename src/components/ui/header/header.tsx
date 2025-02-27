@@ -30,8 +30,8 @@ const menuVariants = {
 };
 
 const itemVariants = {
-	hidden: { opacity: 0, y: -20 },
-	visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+  hidden: { opacity: 0, y: -20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
 };
 
 const hoverVariants = {
@@ -39,16 +39,16 @@ const hoverVariants = {
 };
 
 export default function Header() {
-	const [scrolled, setScrolled] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
-	useEffect(() => {
-		const handleScroll = () => {
-			if (window.scrollY > 50) {
-				setScrolled(true);
-			} else {
-				setScrolled(false);
-			}
-		};
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 50) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+    };
 
 		window.addEventListener("scroll", handleScroll);
 		return () => {
@@ -74,7 +74,7 @@ export default function Header() {
 }
 
 function Navbar() {
-	const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
 	const t = useTranslations("Header");
 
@@ -163,10 +163,10 @@ function Navbar() {
 }
 
 interface LinkProps {
-	links: {
-		linkName: string;
-		href: string;
-	}[];
+  links: {
+    linkName: string;
+    href: string;
+  }[];
 }
 
 function Links({ links }: LinkProps) {
@@ -204,10 +204,10 @@ function Links({ links }: LinkProps) {
 }
 
 interface MobileLinksProps {
-	links: {
-		linkName: string;
-		href: string;
-	}[];
+  links: {
+    linkName: string;
+    href: string;
+  }[];
 }
 
 function MobileLinks({ links }: MobileLinksProps) {

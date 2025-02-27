@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useEffect, useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -14,37 +14,37 @@ import { Label } from "@/components/ui/label";
 
 // Define a validation schema for registration using Zod.
 const registerSchema = z
-	.object({
-		name: z.string().nonempty({ message: "Name is required" }),
-		email: z
-			.string()
-			.nonempty({ message: "Email is required" })
-			.email("Invalid email format"),
-		password: z
-			.string()
-			.min(6, { message: "Password must be at least 6 characters long" }),
-		confirmPassword: z
-			.string()
-			.nonempty({ message: "Please confirm your password" }),
-		dateOfBirth: z.string().optional(),
-		emergencyRecoveryContact: z.string().optional(),
-	})
-	.refine((data) => data.password === data.confirmPassword, {
-		message: "Passwords do not match",
-		path: ["confirmPassword"],
-	});
+  .object({
+    name: z.string().nonempty({ message: 'Name is required' }),
+    email: z
+      .string()
+      .nonempty({ message: 'Email is required' })
+      .email('Invalid email format'),
+    password: z
+      .string()
+      .min(6, { message: 'Password must be at least 6 characters long' }),
+    confirmPassword: z
+      .string()
+      .nonempty({ message: 'Please confirm your password' }),
+    dateOfBirth: z.string().optional(),
+    emergencyRecoveryContact: z.string().optional(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  });
 
 type RegisterFormData = z.infer<typeof registerSchema>;
 
 // Framer Motion animation variants.
 const containerVariants = {
-	hidden: { opacity: 0, y: 50 },
-	visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+  hidden: { opacity: 0, y: 50 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
 };
 
 const fieldVariants = {
-	hidden: { opacity: 0, x: -20 },
-	visible: { opacity: 1, x: 0, transition: { duration: 0.4 } },
+  hidden: { opacity: 0, x: -20 },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.4 } },
 };
 
 export default function RegisterPage() {

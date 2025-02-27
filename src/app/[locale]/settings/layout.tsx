@@ -1,21 +1,21 @@
-"use client";
+'use client';
 
-import { useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
-import VerticalSidebar from "@/components/ui/header/vertical-header";
-import { useAuthStore } from "@/stores/authStore";
+import { useEffect } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import VerticalSidebar from '@/components/ui/header/vertical-header';
+import { useAuthStore } from '@/stores/authStore';
 
 function getGreeting() {
-	const hour = new Date().getHours();
-	if (hour < 12) return "Good morning";
-	if (hour < 18) return "Good afternoon";
-	return "Good evening";
+  const hour = new Date().getHours();
+  if (hour < 12) return 'Good morning';
+  if (hour < 18) return 'Good afternoon';
+  return 'Good evening';
 }
 
 export default function SettingsLayout({
-	children,
+  children,
 }: {
-	children: React.ReactNode;
+  children: React.ReactNode;
 }) {
 	const params = useParams();
 	const locale = params.locale || "en";
@@ -42,21 +42,21 @@ export default function SettingsLayout({
 		}
 	}, [isAuthenticatedUser, checkUserProfile]);
 
-	// Redirect to login if not authenticated once checking is complete.
-	useEffect(() => {
-		if (!isCheckingAuth && !isAuthenticatedUser) {
-			router.push(`/${locale}/login`);
-		}
-	}, [isCheckingAuth, isAuthenticatedUser, router, locale]);
+  // Redirect to login if not authenticated once checking is complete.
+  useEffect(() => {
+    if (!isCheckingAuth && !isAuthenticatedUser) {
+      router.push(`/${locale}/login`);
+    }
+  }, [isCheckingAuth, isAuthenticatedUser, router, locale]);
 
-	// While waiting for the auth check to finish, show a loading indicator.
-	if (isCheckingAuth) {
-		return (
-			<div className="flex items-center justify-center h-screen">
-				Loading...
-			</div>
-		);
-	}
+  // While waiting for the auth check to finish, show a loading indicator.
+  if (isCheckingAuth) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        Loading...
+      </div>
+    );
+  }
 
 	return (
 		<div className="min-h-screen bg-white dark:bg-black">

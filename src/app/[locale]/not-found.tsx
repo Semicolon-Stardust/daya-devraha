@@ -8,24 +8,24 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 const containerVariants = {
-	hidden: { opacity: 0 },
-	visible: {
-		opacity: 1,
-		transition: {
-			delayChildren: 0.5,
-			staggerChildren: 0.3,
-		},
-	},
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      delayChildren: 0.5,
+      staggerChildren: 0.3,
+    },
+  },
 };
 
 const itemVariants = {
-	hidden: { opacity: 0, y: -50 },
-	visible: { opacity: 1, y: 0 },
+  hidden: { opacity: 0, y: -50 },
+  visible: { opacity: 1, y: 0 },
 };
 
 const svgVariants = {
-	hidden: { opacity: 0 },
-	visible: { opacity: 1, transition: { delay: 2, duration: 0.5 } },
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { delay: 2, duration: 0.5 } },
 };
 
 export default function NotFoundPage() {

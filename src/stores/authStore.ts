@@ -1,12 +1,15 @@
+// /src/stores/authStore.ts
+import { create } from 'zustand';
+import apiClient from '@/apiClient';
 "use client";
 
 import { create } from "zustand";
 import apiClient from "@/apiClient";
 
 interface Admin {
-	id: string;
-	email: string;
-	name: string;
+  id: string;
+  email: string;
+  name: string;
 }
 
 interface User {
@@ -100,111 +103,111 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 	// Admin Functions
 	// =========================
 
-	registerAdmin: async (admin_name, admin_email, password, key) => {
-		set({ isLoading: true, error: null });
-		try {
-			const response = await apiClient.post("/admin/register", {
-				name: admin_name,
-				email: admin_email,
-				password,
-				adminKey: key,
-			});
-			set({
-				admin: response.data.data,
-				isAuthenticatedAdmin: true,
-				isLoading: false,
-			});
-		} catch (error: unknown) {
-			let errorMessage = "Error registering admin";
-			if (error instanceof Error) {
-				errorMessage = error.message;
-			}
-			set({ error: errorMessage, isLoading: false });
-			throw error;
-		}
-	},
+  registerAdmin: async (admin_name, admin_email, password, key) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await apiClient.post('/admin/register', {
+        name: admin_name,
+        email: admin_email,
+        password,
+        adminKey: key,
+      });
+      set({
+        admin: response.data.data,
+        isAuthenticatedAdmin: true,
+        isLoading: false,
+      });
+    } catch (error: unknown) {
+      let errorMessage = 'Error registering admin';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      set({ error: errorMessage, isLoading: false });
+      throw error;
+    }
+  },
 
-	loginAdmin: async (admin_email, password) => {
-		set({ isLoading: true, error: null });
-		try {
-			const response = await apiClient.post("/admin/login", {
-				email: admin_email,
-				password,
-			});
-			set({
-				admin: response.data.data,
-				isAuthenticatedAdmin: true,
-				isLoading: false,
-			});
-		} catch (error: unknown) {
-			let errorMessage = "Error logging in admin";
-			if (error instanceof Error) {
-				errorMessage = error.message;
-			}
-			set({ error: errorMessage, isLoading: false });
-			throw error;
-		}
-	},
+  loginAdmin: async (admin_email, password) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await apiClient.post('/admin/login', {
+        email: admin_email,
+        password,
+      });
+      set({
+        admin: response.data.data,
+        isAuthenticatedAdmin: true,
+        isLoading: false,
+      });
+    } catch (error: unknown) {
+      let errorMessage = 'Error logging in admin';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      set({ error: errorMessage, isLoading: false });
+      throw error;
+    }
+  },
 
-	logoutAdmin: async () => {
-		set({ isLoading: true, error: null });
-		try {
-			await apiClient.post("/admin/logout");
-			set({
-				admin: null,
-				isAuthenticatedAdmin: false,
-				isLoading: false,
-			});
-		} catch (error: unknown) {
-			let errorMessage = "Error logging out admin";
-			if (error instanceof Error) {
-				errorMessage = error.message;
-			}
-			set({ error: errorMessage, isLoading: false });
-			throw error;
-		}
-	},
+  logoutAdmin: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      await apiClient.post('/admin/logout');
+      set({
+        admin: null,
+        isAuthenticatedAdmin: false,
+        isLoading: false,
+      });
+    } catch (error: unknown) {
+      let errorMessage = 'Error logging out admin';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      set({ error: errorMessage, isLoading: false });
+      throw error;
+    }
+  },
 
-	checkAdminAuth: async () => {
-		set({ isCheckingAuth: true });
-		try {
-			const response = await apiClient.get("/admin/validate-token", {
-				withCredentials: true,
-			});
-			set({
-				admin: response.data.data,
-				isAuthenticatedAdmin: true,
-				isCheckingAuth: false,
-			});
-		} catch (error: unknown) {
-			set({
-				admin: null,
-				isAuthenticatedAdmin: false,
-				isCheckingAuth: false,
-			});
-		}
-	},
+  checkAdminAuth: async () => {
+    set({ isCheckingAuth: true });
+    try {
+      const response = await apiClient.get('/admin/validate-token', {
+        withCredentials: true,
+      });
+      set({
+        admin: response.data.data,
+        isAuthenticatedAdmin: true,
+        isCheckingAuth: false,
+      });
+    } catch (error: unknown) {
+      set({
+        admin: null,
+        isAuthenticatedAdmin: false,
+        isCheckingAuth: false,
+      });
+    }
+  },
 
-	checkAdminProfile: async () => {
-		try {
-			const response = await apiClient.get("/admin/profile", {
-				withCredentials: true,
-			});
-			set({
-				admin: response.data.data,
-				isAuthenticatedAdmin: true,
-			});
-		} catch (error: unknown) {
-			set({
-				admin: null,
-				isAuthenticatedAdmin: false,
-			});
-		}
-	},
+  checkAdminProfile: async () => {
+    try {
+      const response = await apiClient.get('/admin/profile', {
+        withCredentials: true,
+      });
+      set({
+        admin: response.data.data,
+        isAuthenticatedAdmin: true,
+      });
+    } catch (error: unknown) {
+      set({
+        admin: null,
+        isAuthenticatedAdmin: false,
+      });
+    }
+  },
 
-	// =========================
-	// User Functions
-	// =========================
+  // =========================
+  // User Functions
+  // =========================
 
 	registerUser: async (
 		name,
@@ -350,44 +353,40 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 		}
 	},
 
-	toggleUserTwoFactor: async () => {
-		set({ isLoading: true, error: null });
-		try {
-			const currentUser = get().user;
-			if (currentUser && currentUser.twoFactorEnabled) {
-				await apiClient.post(
-					"/user/disable-two-factor",
-					{},
-					{ withCredentials: true }
-				);
-				set((state) => ({
-					user: state.user
-						? { ...state.user, twoFactorEnabled: false }
-						: null,
-					isLoading: false,
-				}));
-			} else {
-				await apiClient.post(
-					"/user/enable-two-factor",
-					{},
-					{ withCredentials: true }
-				);
-				set((state) => ({
-					user: state.user
-						? { ...state.user, twoFactorEnabled: true }
-						: null,
-					isLoading: false,
-				}));
-			}
-		} catch (error: unknown) {
-			let errorMessage = "Error toggling 2FA preferences";
-			if (error instanceof Error) {
-				errorMessage = error.message;
-			}
-			set({ error: errorMessage, isLoading: false });
-			throw error;
-		}
-	},
+  toggleUserTwoFactor: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const currentUser = get().user;
+      if (currentUser && currentUser.twoFactorEnabled) {
+        await apiClient.post(
+          '/user/disable-two-factor',
+          {},
+          { withCredentials: true },
+        );
+        set((state) => ({
+          user: state.user ? { ...state.user, twoFactorEnabled: false } : null,
+          isLoading: false,
+        }));
+      } else {
+        await apiClient.post(
+          '/user/enable-two-factor',
+          {},
+          { withCredentials: true },
+        );
+        set((state) => ({
+          user: state.user ? { ...state.user, twoFactorEnabled: true } : null,
+          isLoading: false,
+        }));
+      }
+    } catch (error: unknown) {
+      let errorMessage = 'Error toggling 2FA preferences';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      set({ error: errorMessage, isLoading: false });
+      throw error;
+    }
+  },
 
 	deleteUserAccount: async () => {
 		set({ isLoading: true, error: null });

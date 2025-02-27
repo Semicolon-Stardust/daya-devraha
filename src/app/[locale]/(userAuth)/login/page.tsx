@@ -14,24 +14,24 @@ import { useAuthStore } from "@/stores/authStore";
 
 // Define validation schema using Zod.
 const loginSchema = z.object({
-	email: z
-		.string()
-		.nonempty({ message: "Email is required" })
-		.email({ message: "Invalid email format" }),
-	password: z.string().nonempty({ message: "Password is required" }),
+  email: z
+    .string()
+    .nonempty({ message: 'Email is required' })
+    .email({ message: 'Invalid email format' }),
+  password: z.string().nonempty({ message: 'Password is required' }),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
 // Framer Motion animation variants.
 const containerVariants = {
-	hidden: { opacity: 0, y: 50 },
-	visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+  hidden: { opacity: 0, y: 50 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
 };
 
 const fieldVariants = {
-	hidden: { opacity: 0, x: -20 },
-	visible: { opacity: 1, x: 0, transition: { duration: 0.4 } },
+  hidden: { opacity: 0, x: -20 },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.4 } },
 };
 
 export default function LoginPage() {
@@ -86,13 +86,13 @@ export default function LoginPage() {
 		},
 	});
 
-	const {
-		register,
-		handleSubmit,
-		formState: { errors },
-	} = useForm<LoginFormData>({
-		resolver: zodResolver(loginSchema),
-	});
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+  });
 
 	const onSubmit = async (data: LoginFormData) => {
 		setLocalError(null);
