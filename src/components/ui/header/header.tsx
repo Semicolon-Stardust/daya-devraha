@@ -1,22 +1,22 @@
-"use client";
+'use client';
 
-import { cn } from "@/lib/utils";
-import { Link } from "@/i18n/routing";
-import { useState, useEffect } from "react";
-import { Button } from "../button";
-import { Menu, X } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ModeToggle } from "@/components/utils/mode-toggle";
-import { useTranslations } from "next-intl";
-import Image from "next/image";
+import { cn } from '@/lib/utils';
+import { Link } from '@/i18n/routing';
+import { useState, useEffect } from 'react';
+import { Button } from '../button';
+import { Menu, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ModeToggle } from '@/components/utils/mode-toggle';
+import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 
 const menuVariants = {
 	open: {
 		opacity: 1,
-		height: "auto",
+		height: 'auto',
 		transition: {
 			duration: 0.5,
-			ease: "easeInOut",
+			ease: 'easeInOut',
 		},
 	},
 	closed: {
@@ -24,35 +24,35 @@ const menuVariants = {
 		height: 0,
 		transition: {
 			duration: 0.5,
-			ease: "easeInOut",
+			ease: 'easeInOut',
 		},
 	},
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: -20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+	hidden: { opacity: 0, y: -20 },
+	visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
 };
 
 const hoverVariants = {
-	hover: { fontFamily: "font-mono", transition: { duration: 0.3 } },
+	hover: { fontFamily: 'font-mono', transition: { duration: 0.3 } },
 };
 
 export default function Header() {
-  const [scrolled, setScrolled] = useState(false);
+	const [scrolled, setScrolled] = useState(false);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 50) {
-        setScrolled(true);
-      } else {
-        setScrolled(false);
-      }
-    };
+	useEffect(() => {
+		const handleScroll = () => {
+			if (window.scrollY > 50) {
+				setScrolled(true);
+			} else {
+				setScrolled(false);
+			}
+		};
 
-		window.addEventListener("scroll", handleScroll);
+		window.addEventListener('scroll', handleScroll);
 		return () => {
-			window.removeEventListener("scroll", handleScroll);
+			window.removeEventListener('scroll', handleScroll);
 		};
 	}, []);
 
@@ -62,10 +62,10 @@ export default function Header() {
 			animate={{ y: 0 }}
 			transition={{ duration: 0.5 }}
 			className={cn(
-				"fixed top-0 left-0 z-50 w-full bg-white select-none dark:bg-black",
+				'fixed top-0 left-0 z-50 w-full bg-white select-none dark:bg-black',
 				scrolled
-					? "border-b border-gray-200 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.3)] backdrop-blur-md transition-shadow duration-500 dark:border-gray-700 dark:shadow-[0_35px_60px_-15px_rgba(255,255,255,0.3)]"
-					: "transition-shadow duration-500"
+					? 'border-b border-gray-200 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.3)] backdrop-blur-md transition-shadow duration-500 dark:border-gray-700 dark:shadow-[0_35px_60px_-15px_rgba(255,255,255,0.3)]'
+					: 'transition-shadow duration-500'
 			)}
 		>
 			<Navbar />
@@ -74,23 +74,23 @@ export default function Header() {
 }
 
 function Navbar() {
-  const [isOpen, setIsOpen] = useState(false);
+	const [isOpen, setIsOpen] = useState(false);
 
-	const t = useTranslations("Header");
+	const t = useTranslations('Header');
 
 	const linksData = [
-		{ linkName: t("links.home"), href: "/" },
-		{ linkName: t("links.about"), href: "/about" },
-		{ linkName: t("links.services"), href: "/services" },
-		{ linkName: t("links.contact"), href: "/contact" },
+		{ linkName: t('links.home'), href: '/' },
+		{ linkName: t('links.about'), href: '/about' },
+		{ linkName: t('links.services'), href: '/services' },
+		{ linkName: t('links.contact'), href: '/contact' },
 	];
 
 	return (
 		<motion.div
 			initial={false}
-			animate={isOpen ? "open" : "closed"}
+			animate={isOpen ? 'open' : 'closed'}
 			className={cn(
-				"flex flex-col items-center justify-between px-5 py-1 md:flex-row md:px-20 lg:px-40"
+				'flex flex-col items-center justify-between px-5 py-1 md:flex-row md:px-20 lg:px-40'
 			)}
 		>
 			<motion.div
@@ -110,17 +110,17 @@ function Navbar() {
 					/>
 					<h1
 						className={cn(
-							"text-2xl font-bold text-black lg:text-3xl dark:text-white"
+							'text-2xl font-bold text-black lg:text-3xl dark:text-white'
 						)}
 					>
-						{t("logo")}
+						{t('logo')}
 					</h1>
 				</Link>
 				{/* Hamburger Button for Mobile */}
 				<div className="md:hidden">
 					<Button
-						variant={"link"}
-						effect={"shine"}
+						variant={'link'}
+						effect={'shine'}
 						className="bg-black text-lg font-[300] text-white dark:bg-white dark:text-black"
 						onClick={() => setIsOpen(!isOpen)}
 					>
@@ -150,9 +150,9 @@ function Navbar() {
 			</motion.div>
 			<motion.div
 				initial={false}
-				animate={isOpen ? "open" : "closed"}
+				animate={isOpen ? 'open' : 'closed'}
 				variants={menuVariants}
-				className={cn("flex w-full flex-col md:hidden")}
+				className={cn('flex w-full flex-col md:hidden')}
 			>
 				<AnimatePresence>
 					{isOpen && <MobileLinks links={linksData} />}
@@ -163,15 +163,15 @@ function Navbar() {
 }
 
 interface LinkProps {
-  links: {
-    linkName: string;
-    href: string;
-  }[];
+	links: {
+		linkName: string;
+		href: string;
+	}[];
 }
 
 function Links({ links }: LinkProps) {
 	return (
-		<ul className={cn("flex items-center", "")}>
+		<ul className={cn('flex items-center', '')}>
 			{links.map((link) => (
 				<motion.li
 					key={link.href}
@@ -190,8 +190,8 @@ function Links({ links }: LinkProps) {
 				>
 					<motion.div whileHover="hover" variants={hoverVariants}>
 						<Button
-							variant={"link"}
-							effect={"hoverUnderline"}
+							variant={'link'}
+							effect={'hoverUnderline'}
 							className="text-lg font-[300] text-black dark:text-white"
 						>
 							<Link href={link.href}>{link.linkName}</Link>
@@ -204,20 +204,20 @@ function Links({ links }: LinkProps) {
 }
 
 interface MobileLinksProps {
-  links: {
-    linkName: string;
-    href: string;
-  }[];
+	links: {
+		linkName: string;
+		href: string;
+	}[];
 }
 
 function MobileLinks({ links }: MobileLinksProps) {
 	return (
 		<motion.nav
 			initial={false}
-			animate={"open"}
-			exit={"closed"}
+			animate={'open'}
+			exit={'closed'}
 			variants={menuVariants}
-			className={cn("mt-10 flex flex-col items-center gap-5")}
+			className={cn('mt-10 flex flex-col items-center gap-5')}
 		>
 			<Links links={links} />
 			<CTAButtons />
@@ -228,15 +228,15 @@ function MobileLinks({ links }: MobileLinksProps) {
 
 function CTAButtons() {
 	return (
-		<div className={cn("flex gap-5")}>
-			<Link href={"/login"}>
-				<Button variant="secondary" effect={"gooeyLeft"}>
+		<div className={cn('flex gap-5')}>
+			<Link href={'/login'}>
+				<Button variant="secondary" effect={'gooeyLeft'}>
 					Login
 				</Button>
 			</Link>
 
-			<Link href={"/register"}>
-				<Button variant="outline" effect={"gooeyRight"}>
+			<Link href={'/register'}>
+				<Button variant="outline" effect={'gooeyRight'}>
 					Register
 				</Button>
 			</Link>

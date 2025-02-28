@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import { useRouter, useParams } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { useMutation } from "@tanstack/react-query";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { Button } from "@/components/ui/button";
-import { useAuthStore } from "@/stores/authStore";
+import { useRouter, useParams } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { useMutation } from '@tanstack/react-query';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Button } from '@/components/ui/button';
+import { useAuthStore } from '@/stores/authStore';
 
 const schema = z.object({
 	email: z
 		.string()
-		.nonempty({ message: "Email is required" })
-		.email({ message: "Invalid email format" }),
+		.nonempty({ message: 'Email is required' })
+		.email({ message: 'Invalid email format' }),
 });
 
 type ForgotPasswordFormData = z.infer<typeof schema>;
@@ -20,7 +20,7 @@ type ForgotPasswordFormData = z.infer<typeof schema>;
 export default function ForgotPasswordPage() {
 	const router = useRouter();
 	const params = useParams();
-	const locale = (params.locale as string) || "en";
+	const locale = (params.locale as string) || 'en';
 	const { forgotPassword } = useAuthStore();
 
 	const {
@@ -35,11 +35,11 @@ export default function ForgotPasswordPage() {
 		mutationFn: (data: ForgotPasswordFormData) =>
 			forgotPassword(data.email),
 		onSuccess: () => {
-			alert("Password reset email sent. Please check your email.");
+			alert('Password reset email sent. Please check your email.');
 			router.push(`/${locale}/login`);
 		},
 		onError: (error: any) => {
-			alert(error.message || "Error sending password reset email.");
+			alert(error.message || 'Error sending password reset email.');
 		},
 	});
 
@@ -48,11 +48,11 @@ export default function ForgotPasswordPage() {
 	};
 
 	return (
-		<div className="min-h-screen flex flex-col items-center justify-center bg-background dark:bg-background-dark p-4">
-			<h1 className="text-3xl font-bold mb-4">Forgot Password</h1>
+		<div className="bg-background dark:bg-background-dark flex min-h-screen flex-col items-center justify-center p-4">
+			<h1 className="mb-4 text-3xl font-bold">Forgot Password</h1>
 			<form
 				onSubmit={handleSubmit(onSubmit)}
-				className="w-full max-w-md bg-white p-8 rounded shadow"
+				className="w-full max-w-md rounded bg-white p-8 shadow"
 			>
 				<div className="mb-4">
 					<label
@@ -64,18 +64,18 @@ export default function ForgotPasswordPage() {
 					<input
 						id="email"
 						type="email"
-						{...register("email")}
-						className="mt-1 block w-full border rounded p-2"
+						{...register('email')}
+						className="mt-1 block w-full rounded border p-2"
 						placeholder="Enter your email"
 					/>
 					{errors.email && (
-						<p className="text-destructive text-sm mt-1">
+						<p className="text-destructive mt-1 text-sm">
 							{errors.email.message}
 						</p>
 					)}
 				</div>
 				<Button type="submit" className="w-full">
-					{mutation.isPending ? "Sending..." : "Send Reset Link"}
+					{mutation.isPending ? 'Sending...' : 'Send Reset Link'}
 				</Button>
 			</form>
 		</div>

@@ -1,56 +1,56 @@
 'use client';
 
-import { useEffect, useState } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { motion } from "framer-motion";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { useRouter, useParams } from "next/navigation";
-import { useAuthStore } from "@/stores/authStore";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { useEffect, useState } from 'react';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { motion } from 'framer-motion';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { useRouter, useParams } from 'next/navigation';
+import { useAuthStore } from '@/stores/authStore';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 // Define a validation schema for registration using Zod.
 const registerSchema = z
-  .object({
-    name: z.string().nonempty({ message: 'Name is required' }),
-    email: z
-      .string()
-      .nonempty({ message: 'Email is required' })
-      .email('Invalid email format'),
-    password: z
-      .string()
-      .min(6, { message: 'Password must be at least 6 characters long' }),
-    confirmPassword: z
-      .string()
-      .nonempty({ message: 'Please confirm your password' }),
-    dateOfBirth: z.string().optional(),
-    emergencyRecoveryContact: z.string().optional(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword'],
-  });
+	.object({
+		name: z.string().nonempty({ message: 'Name is required' }),
+		email: z
+			.string()
+			.nonempty({ message: 'Email is required' })
+			.email('Invalid email format'),
+		password: z
+			.string()
+			.min(6, { message: 'Password must be at least 6 characters long' }),
+		confirmPassword: z
+			.string()
+			.nonempty({ message: 'Please confirm your password' }),
+		dateOfBirth: z.string().optional(),
+		emergencyRecoveryContact: z.string().optional(),
+	})
+	.refine((data) => data.password === data.confirmPassword, {
+		message: 'Passwords do not match',
+		path: ['confirmPassword'],
+	});
 
 type RegisterFormData = z.infer<typeof registerSchema>;
 
 // Framer Motion animation variants.
 const containerVariants = {
-  hidden: { opacity: 0, y: 50 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+	hidden: { opacity: 0, y: 50 },
+	visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
 };
 
 const fieldVariants = {
-  hidden: { opacity: 0, x: -20 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.4 } },
+	hidden: { opacity: 0, x: -20 },
+	visible: { opacity: 1, x: 0, transition: { duration: 0.4 } },
 };
 
 export default function RegisterPage() {
 	const router = useRouter();
 	const params = useParams();
-	const locale = params.locale || "en";
+	const locale = params.locale || 'en';
 	const [registrationSuccess, setRegistrationSuccess] = useState(false);
 
 	const {
@@ -61,7 +61,7 @@ export default function RegisterPage() {
 
 	// Use an object to configure the query.
 	const { data: authData } = useQuery({
-		queryKey: ["auth"],
+		queryKey: ['auth'],
 		queryFn: async () => {
 			const result = await checkUserAuth();
 			// Ensure that we always return an object—even if result is undefined.
@@ -110,17 +110,17 @@ export default function RegisterPage() {
 	if (registrationSuccess) {
 		return (
 			<motion.div
-				className="flex items-center justify-center min-h-screen p-4 bg-background dark:bg-background-dark"
+				className="bg-background dark:bg-background-dark flex min-h-screen items-center justify-center p-4"
 				initial="hidden"
 				animate="visible"
 				variants={containerVariants}
 			>
 				<motion.div
-					className="w-full max-w-md p-8 space-y-6 rounded-lg shadow bg-card"
+					className="bg-card w-full max-w-md space-y-6 rounded-lg p-8 shadow"
 					variants={containerVariants}
 				>
 					<motion.h1
-						className="text-3xl font-bold text-center text-primary"
+						className="text-primary text-center text-3xl font-bold"
 						variants={fieldVariants}
 					>
 						Registration Successful!
@@ -141,17 +141,17 @@ export default function RegisterPage() {
 
 	return (
 		<motion.div
-			className="flex items-center justify-center min-h-screen p-4 bg-background dark:bg-background-dark"
+			className="bg-background dark:bg-background-dark flex min-h-screen items-center justify-center p-4"
 			initial="hidden"
 			animate="visible"
 			variants={containerVariants}
 		>
 			<motion.div
-				className="w-full max-w-md p-8 space-y-6 rounded-lg shadow bg-card"
+				className="bg-card w-full max-w-md space-y-6 rounded-lg p-8 shadow"
 				variants={containerVariants}
 			>
 				<motion.h1
-					className="text-3xl font-bold text-center text-primary"
+					className="text-primary text-center text-3xl font-bold"
 					variants={fieldVariants}
 				>
 					Create Your Account
@@ -167,12 +167,12 @@ export default function RegisterPage() {
 						<Input
 							id="name"
 							type="text"
-							{...register("name")}
-							className="w-full mt-1"
+							{...register('name')}
+							className="mt-1 w-full"
 							placeholder="Your full name"
 						/>
 						{errors.name && (
-							<p className="mt-1 text-xs text-destructive">
+							<p className="text-destructive mt-1 text-xs">
 								{errors.name.message}
 							</p>
 						)}
@@ -187,12 +187,12 @@ export default function RegisterPage() {
 						<Input
 							id="email"
 							type="email"
-							{...register("email")}
-							className="w-full mt-1"
+							{...register('email')}
+							className="mt-1 w-full"
 							placeholder="you@example.com"
 						/>
 						{errors.email && (
-							<p className="mt-1 text-xs text-destructive">
+							<p className="text-destructive mt-1 text-xs">
 								{errors.email.message}
 							</p>
 						)}
@@ -207,12 +207,12 @@ export default function RegisterPage() {
 						<Input
 							id="password"
 							type="password"
-							{...register("password")}
-							className="w-full mt-1"
+							{...register('password')}
+							className="mt-1 w-full"
 							placeholder="Your secure password"
 						/>
 						{errors.password && (
-							<p className="mt-1 text-xs text-destructive">
+							<p className="text-destructive mt-1 text-xs">
 								{errors.password.message}
 							</p>
 						)}
@@ -227,12 +227,12 @@ export default function RegisterPage() {
 						<Input
 							id="confirmPassword"
 							type="password"
-							{...register("confirmPassword")}
-							className="w-full mt-1"
+							{...register('confirmPassword')}
+							className="mt-1 w-full"
 							placeholder="Re-enter your password"
 						/>
 						{errors.confirmPassword && (
-							<p className="mt-1 text-xs text-destructive">
+							<p className="text-destructive mt-1 text-xs">
 								{errors.confirmPassword.message}
 							</p>
 						)}
@@ -247,8 +247,8 @@ export default function RegisterPage() {
 						<Input
 							id="dateOfBirth"
 							type="date"
-							{...register("dateOfBirth")}
-							className="w-full mt-1"
+							{...register('dateOfBirth')}
+							className="mt-1 w-full"
 						/>
 					</motion.div>
 					<motion.div variants={fieldVariants}>
@@ -261,22 +261,22 @@ export default function RegisterPage() {
 						<Input
 							id="emergencyRecoveryContact"
 							type="email"
-							{...register("emergencyRecoveryContact")}
-							className="w-full mt-1"
+							{...register('emergencyRecoveryContact')}
+							className="mt-1 w-full"
 							placeholder="Alternate email"
 						/>
 					</motion.div>
 					<motion.div variants={fieldVariants}>
 						<Button type="submit" className="w-full">
 							{registerMutation.isPending
-								? "Registering..."
-								: "Register"}
+								? 'Registering...'
+								: 'Register'}
 						</Button>
 					</motion.div>
 					{registerMutation.error && (
-						<p className="text-center text-destructive">
+						<p className="text-destructive text-center">
 							{(registerMutation.error as Error)?.message ||
-								"Registration failed."}
+								'Registration failed.'}
 						</p>
 					)}
 				</form>

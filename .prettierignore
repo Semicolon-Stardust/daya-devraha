@@ -1,0 +1,28 @@
+# Node modules should always be ignored
+node_modules/
+
+# Build output directories
+dist/
+build/
+.next/
+
+# Test coverage and temporary files
+coverage/
+.tmp/
+*.log
+
+# Configuration files that you might not want to reformat
+.prettierrc
+.prettierignore
+.eslintrc*
+*.config.js
+
+# Static assets and media files
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+
+# Other common files/directories to ignore
+public/

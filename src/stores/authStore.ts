@@ -1,15 +1,10 @@
-// /src/stores/authStore.ts
 import { create } from 'zustand';
 import apiClient from '@/apiClient';
-"use client";
-
-import { create } from "zustand";
-import apiClient from "@/apiClient";
 
 interface Admin {
-  id: string;
-  email: string;
-  name: string;
+	id: string;
+	email: string;
+	name: string;
 }
 
 interface User {
@@ -103,111 +98,111 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 	// Admin Functions
 	// =========================
 
-  registerAdmin: async (admin_name, admin_email, password, key) => {
-    set({ isLoading: true, error: null });
-    try {
-      const response = await apiClient.post('/admin/register', {
-        name: admin_name,
-        email: admin_email,
-        password,
-        adminKey: key,
-      });
-      set({
-        admin: response.data.data,
-        isAuthenticatedAdmin: true,
-        isLoading: false,
-      });
-    } catch (error: unknown) {
-      let errorMessage = 'Error registering admin';
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      }
-      set({ error: errorMessage, isLoading: false });
-      throw error;
-    }
-  },
+	registerAdmin: async (admin_name, admin_email, password, key) => {
+		set({ isLoading: true, error: null });
+		try {
+			const response = await apiClient.post('/admin/register', {
+				name: admin_name,
+				email: admin_email,
+				password,
+				adminKey: key,
+			});
+			set({
+				admin: response.data.data,
+				isAuthenticatedAdmin: true,
+				isLoading: false,
+			});
+		} catch (error: unknown) {
+			let errorMessage = 'Error registering admin';
+			if (error instanceof Error) {
+				errorMessage = error.message;
+			}
+			set({ error: errorMessage, isLoading: false });
+			throw error;
+		}
+	},
 
-  loginAdmin: async (admin_email, password) => {
-    set({ isLoading: true, error: null });
-    try {
-      const response = await apiClient.post('/admin/login', {
-        email: admin_email,
-        password,
-      });
-      set({
-        admin: response.data.data,
-        isAuthenticatedAdmin: true,
-        isLoading: false,
-      });
-    } catch (error: unknown) {
-      let errorMessage = 'Error logging in admin';
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      }
-      set({ error: errorMessage, isLoading: false });
-      throw error;
-    }
-  },
+	loginAdmin: async (admin_email, password) => {
+		set({ isLoading: true, error: null });
+		try {
+			const response = await apiClient.post('/admin/login', {
+				email: admin_email,
+				password,
+			});
+			set({
+				admin: response.data.data,
+				isAuthenticatedAdmin: true,
+				isLoading: false,
+			});
+		} catch (error: unknown) {
+			let errorMessage = 'Error logging in admin';
+			if (error instanceof Error) {
+				errorMessage = error.message;
+			}
+			set({ error: errorMessage, isLoading: false });
+			throw error;
+		}
+	},
 
-  logoutAdmin: async () => {
-    set({ isLoading: true, error: null });
-    try {
-      await apiClient.post('/admin/logout');
-      set({
-        admin: null,
-        isAuthenticatedAdmin: false,
-        isLoading: false,
-      });
-    } catch (error: unknown) {
-      let errorMessage = 'Error logging out admin';
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      }
-      set({ error: errorMessage, isLoading: false });
-      throw error;
-    }
-  },
+	logoutAdmin: async () => {
+		set({ isLoading: true, error: null });
+		try {
+			await apiClient.post('/admin/logout');
+			set({
+				admin: null,
+				isAuthenticatedAdmin: false,
+				isLoading: false,
+			});
+		} catch (error: unknown) {
+			let errorMessage = 'Error logging out admin';
+			if (error instanceof Error) {
+				errorMessage = error.message;
+			}
+			set({ error: errorMessage, isLoading: false });
+			throw error;
+		}
+	},
 
-  checkAdminAuth: async () => {
-    set({ isCheckingAuth: true });
-    try {
-      const response = await apiClient.get('/admin/validate-token', {
-        withCredentials: true,
-      });
-      set({
-        admin: response.data.data,
-        isAuthenticatedAdmin: true,
-        isCheckingAuth: false,
-      });
-    } catch (error: unknown) {
-      set({
-        admin: null,
-        isAuthenticatedAdmin: false,
-        isCheckingAuth: false,
-      });
-    }
-  },
+	checkAdminAuth: async () => {
+		set({ isCheckingAuth: true });
+		try {
+			const response = await apiClient.get('/admin/validate-token', {
+				withCredentials: true,
+			});
+			set({
+				admin: response.data.data,
+				isAuthenticatedAdmin: true,
+				isCheckingAuth: false,
+			});
+		} catch (error: unknown) {
+			set({
+				admin: null,
+				isAuthenticatedAdmin: false,
+				isCheckingAuth: false,
+			});
+		}
+	},
 
-  checkAdminProfile: async () => {
-    try {
-      const response = await apiClient.get('/admin/profile', {
-        withCredentials: true,
-      });
-      set({
-        admin: response.data.data,
-        isAuthenticatedAdmin: true,
-      });
-    } catch (error: unknown) {
-      set({
-        admin: null,
-        isAuthenticatedAdmin: false,
-      });
-    }
-  },
+	checkAdminProfile: async () => {
+		try {
+			const response = await apiClient.get('/admin/profile', {
+				withCredentials: true,
+			});
+			set({
+				admin: response.data.data,
+				isAuthenticatedAdmin: true,
+			});
+		} catch (error: unknown) {
+			set({
+				admin: null,
+				isAuthenticatedAdmin: false,
+			});
+		}
+	},
 
-  // =========================
-  // User Functions
-  // =========================
+	// =========================
+	// User Functions
+	// =========================
 
 	registerUser: async (
 		name,
@@ -219,7 +214,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 	) => {
 		set({ isLoading: true, error: null });
 		try {
-			const response = await apiClient.post("/user/register", {
+			const response = await apiClient.post('/user/register', {
 				name,
 				email,
 				password,
@@ -234,7 +229,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 				isEmailVerified: response.data.data.isVerified,
 			});
 		} catch (error: unknown) {
-			let errorMessage = "Error registering user";
+			let errorMessage = 'Error registering user';
 			if (error instanceof Error) {
 				errorMessage = error.message;
 			}
@@ -246,7 +241,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 	loginUser: async (email, password) => {
 		set({ isLoading: true, error: null });
 		try {
-			const response = await apiClient.post("/user/login", {
+			const response = await apiClient.post('/user/login', {
 				email,
 				password,
 			});
@@ -264,7 +259,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 				return { twoFactorRequired: false };
 			}
 		} catch (error: unknown) {
-			let errorMessage = "Error logging in user";
+			let errorMessage = 'Error logging in user';
 			if (error instanceof Error) {
 				errorMessage = error.message;
 			}
@@ -276,7 +271,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 	logoutUser: async () => {
 		set({ isLoading: true, error: null });
 		try {
-			await apiClient.post("/user/logout");
+			await apiClient.post('/user/logout');
 			set({
 				user: null,
 				isAuthenticatedUser: false,
@@ -284,7 +279,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 				isEmailVerified: false,
 			});
 		} catch (error: unknown) {
-			let errorMessage = "Error logging out user";
+			let errorMessage = 'Error logging out user';
 			if (error instanceof Error) {
 				errorMessage = error.message;
 			}
@@ -296,7 +291,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 	checkUserAuth: async () => {
 		set({ isCheckingAuth: true });
 		try {
-			const response = await apiClient.get("/user/validate-token", {
+			const response = await apiClient.get('/user/validate-token', {
 				withCredentials: true,
 			});
 			set({
@@ -317,7 +312,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
 	checkUserProfile: async () => {
 		try {
-			const response = await apiClient.get("/user/profile", {
+			const response = await apiClient.get('/user/profile', {
 				withCredentials: true,
 			});
 			set({
@@ -338,13 +333,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 		set({ isLoading: true, error: null });
 		try {
 			await apiClient.put(
-				"/user/update-profile",
+				'/user/update-profile',
 				{ password: newPassword },
 				{ withCredentials: true }
 			);
 			set({ isLoading: false });
 		} catch (error: unknown) {
-			let errorMessage = "Error updating password";
+			let errorMessage = 'Error updating password';
 			if (error instanceof Error) {
 				errorMessage = error.message;
 			}
@@ -353,45 +348,49 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 		}
 	},
 
-  toggleUserTwoFactor: async () => {
-    set({ isLoading: true, error: null });
-    try {
-      const currentUser = get().user;
-      if (currentUser && currentUser.twoFactorEnabled) {
-        await apiClient.post(
-          '/user/disable-two-factor',
-          {},
-          { withCredentials: true },
-        );
-        set((state) => ({
-          user: state.user ? { ...state.user, twoFactorEnabled: false } : null,
-          isLoading: false,
-        }));
-      } else {
-        await apiClient.post(
-          '/user/enable-two-factor',
-          {},
-          { withCredentials: true },
-        );
-        set((state) => ({
-          user: state.user ? { ...state.user, twoFactorEnabled: true } : null,
-          isLoading: false,
-        }));
-      }
-    } catch (error: unknown) {
-      let errorMessage = 'Error toggling 2FA preferences';
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      }
-      set({ error: errorMessage, isLoading: false });
-      throw error;
-    }
-  },
+	toggleUserTwoFactor: async () => {
+		set({ isLoading: true, error: null });
+		try {
+			const currentUser = get().user;
+			if (currentUser && currentUser.twoFactorEnabled) {
+				await apiClient.post(
+					'/user/disable-two-factor',
+					{},
+					{ withCredentials: true }
+				);
+				set((state) => ({
+					user: state.user
+						? { ...state.user, twoFactorEnabled: false }
+						: null,
+					isLoading: false,
+				}));
+			} else {
+				await apiClient.post(
+					'/user/enable-two-factor',
+					{},
+					{ withCredentials: true }
+				);
+				set((state) => ({
+					user: state.user
+						? { ...state.user, twoFactorEnabled: true }
+						: null,
+					isLoading: false,
+				}));
+			}
+		} catch (error: unknown) {
+			let errorMessage = 'Error toggling 2FA preferences';
+			if (error instanceof Error) {
+				errorMessage = error.message;
+			}
+			set({ error: errorMessage, isLoading: false });
+			throw error;
+		}
+	},
 
 	deleteUserAccount: async () => {
 		set({ isLoading: true, error: null });
 		try {
-			await apiClient.delete("/user/delete-account", {
+			await apiClient.delete('/user/delete-account', {
 				withCredentials: true,
 			});
 			set({
@@ -401,7 +400,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 				isEmailVerified: false,
 			});
 		} catch (error: unknown) {
-			let errorMessage = "Error deleting account";
+			let errorMessage = 'Error deleting account';
 			if (error instanceof Error) {
 				errorMessage = error.message;
 			}
@@ -415,10 +414,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 		try {
 			const email = get().user?.email || get().pendingUserEmail;
 			if (!email) {
-				throw new Error("No email available for OTP verification.");
+				throw new Error('No email available for OTP verification.');
 			}
 			const response = await apiClient.post(
-				"/user/verify-otp",
+				'/user/verify-otp',
 				{ email, otp },
 				{ withCredentials: true }
 			);
@@ -430,7 +429,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 				isEmailVerified: response.data.data.isVerified,
 			});
 		} catch (error: unknown) {
-			let errorMessage = "Error verifying OTP";
+			let errorMessage = 'Error verifying OTP';
 			if (error instanceof Error) {
 				errorMessage = error.message;
 			}
@@ -441,7 +440,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
 	checkUserVerificationStatus: async () => {
 		try {
-			const response = await apiClient.get("/user/verification-status", {
+			const response = await apiClient.get('/user/verification-status', {
 				withCredentials: true,
 			});
 			set({
@@ -465,7 +464,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 			set({ isEmailVerified: verified, isLoading: false });
 			return verified;
 		} catch (error: unknown) {
-			let errorMessage = "Error verifying email";
+			let errorMessage = 'Error verifying email';
 			if (error instanceof Error) {
 				errorMessage = error.message;
 			}
@@ -482,14 +481,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 		set({ isLoading: true, error: null });
 		try {
 			const response = await apiClient.post(
-				"/user/resend-verification",
+				'/user/resend-verification',
 				{ email },
 				{ withCredentials: true }
 			);
 			set({ isLoading: false });
 			return response.data.message;
 		} catch (error: unknown) {
-			let errorMessage = "Error resending verification email";
+			let errorMessage = 'Error resending verification email';
 			if (error instanceof Error) {
 				errorMessage = error.message;
 			}
@@ -506,13 +505,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 		set({ isLoading: true, error: null });
 		try {
 			const response = await apiClient.post(
-				"http://localhost:4000/api/v1/user/forgot-password",
+				'http://localhost:4000/api/v1/user/forgot-password',
 				{ email }
 			);
 			set({ isLoading: false });
 			return response.data.message;
 		} catch (error: unknown) {
-			let errorMessage = "Error sending password reset email";
+			let errorMessage = 'Error sending password reset email';
 			if (error instanceof Error) {
 				errorMessage = error.message;
 			}
@@ -536,7 +535,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 			set({ isLoading: false });
 			return response.data.message;
 		} catch (error: unknown) {
-			let errorMessage = "Error resetting password";
+			let errorMessage = 'Error resetting password';
 			if (error instanceof Error) {
 				errorMessage = error.message;
 			}
