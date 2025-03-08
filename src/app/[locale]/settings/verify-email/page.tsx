@@ -1,28 +1,28 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { useRouter, useParams } from "next/navigation";
-import { useAuthStore } from "@/stores/authStore";
+import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
+import { useRouter, useParams } from 'next/navigation';
+import { useAuthStore } from '@/stores/authStore';
 
 export default function VerifyEmailPage() {
 	const { checkUserVerificationStatus, isEmailVerified, isLoading, error } =
 		useAuthStore();
 	const router = useRouter();
 	const params = useParams();
-	const locale = params.locale || "en";
+	const locale = params.locale || 'en';
 
-	const [status, setStatus] = useState<"verified" | "not_verified" | null>(
+	const [status, setStatus] = useState<'verified' | 'not_verified' | null>(
 		null
 	);
 
 	useEffect(() => {
 		checkUserVerificationStatus()
 			.then(() => {
-				setStatus(isEmailVerified ? "verified" : "not_verified");
+				setStatus(isEmailVerified ? 'verified' : 'not_verified');
 			})
 			.catch(() => {
-				setStatus("not_verified");
+				setStatus('not_verified');
 			});
 	}, [checkUserVerificationStatus, isEmailVerified]);
 
@@ -30,7 +30,7 @@ export default function VerifyEmailPage() {
 		hidden: { scale: 0 },
 		visible: {
 			scale: 1,
-			transition: { type: "spring", stiffness: 260, damping: 20 },
+			transition: { type: 'spring', stiffness: 260, damping: 20 },
 		},
 	};
 
@@ -45,7 +45,7 @@ export default function VerifyEmailPage() {
 					Checking verification status...
 				</p>
 			)}
-			{!isLoading && status === "verified" && (
+			{!isLoading && status === 'verified' && (
 				<motion.div
 					className="flex items-center justify-center gap-1.5"
 					variants={iconVariants}
@@ -53,7 +53,7 @@ export default function VerifyEmailPage() {
 					animate="visible"
 				>
 					<svg
-						className="w-16 h-16 text-green-500 dark:text-green-400"
+						className="h-16 w-16 text-green-500 dark:text-green-400"
 						fill="none"
 						stroke="currentColor"
 						viewBox="0 0 24 24"
@@ -70,7 +70,7 @@ export default function VerifyEmailPage() {
 					</p>
 				</motion.div>
 			)}
-			{!isLoading && status === "not_verified" && (
+			{!isLoading && status === 'not_verified' && (
 				<motion.div
 					className="flex flex-col items-center"
 					variants={iconVariants}
@@ -78,7 +78,7 @@ export default function VerifyEmailPage() {
 					animate="visible"
 				>
 					<svg
-						className="w-16 h-16 text-red-500 dark:text-red-400"
+						className="h-16 w-16 text-red-500 dark:text-red-400"
 						fill="none"
 						stroke="currentColor"
 						viewBox="0 0 24 24"
@@ -94,12 +94,12 @@ export default function VerifyEmailPage() {
 						Your email is not verified.
 					</p>
 					{error && (
-						<p className="mt-2 text-sm text-destructive dark:text-destructive-dark">
+						<p className="text-destructive dark:text-destructive-dark mt-2 text-sm">
 							{error}
 						</p>
 					)}
 					<button
-						className="mt-4 underline text-blue-500 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-500"
+						className="mt-4 text-blue-500 underline hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-500"
 						onClick={() =>
 							router.push(`/${locale}/resend-verification`)
 						}

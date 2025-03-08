@@ -3,15 +3,35 @@ import Header from '@/components/ui/header/header';
 import { ReactNode } from 'react';
 
 interface LayoutProps {
-  children: ReactNode;
+	children: ReactNode;
 }
 
 export default function Layout({ children }: LayoutProps) {
-  return (
-    <div>
-      <Header />
-      {children}
-      <Footer />
-    </div>
-  );
+	return (
+		<div>
+			<Header
+				links={[
+					{ linkName: 'Home', href: '/' },
+					{ linkName: 'About', href: '/about' },
+					{ linkName: 'Contact', href: '/contact' },
+				]}
+				ctaButtons={[
+					{
+						href: '/login',
+						label: 'Login',
+						variant: 'outline',
+						effect: 'hoverUnderline',
+					},
+					{
+						href: '/register',
+						label: 'Register',
+						variant: 'default',
+						effect: 'hoverUnderline',
+					},
+				]}
+			/>
+			{children}
+			<Footer />
+		</div>
+	);
 }

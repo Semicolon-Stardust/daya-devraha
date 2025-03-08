@@ -1,22 +1,22 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { useRouter, useParams } from "next/navigation";
-import { useAuthStore } from "@/stores/authStore";
-import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { useMutation } from "@tanstack/react-query";
-import { useForm, Controller } from "react-hook-form";
+import { useEffect, useState } from 'react';
+import { useRouter, useParams } from 'next/navigation';
+import { useAuthStore } from '@/stores/authStore';
+import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { useMutation } from '@tanstack/react-query';
+import { useForm, Controller } from 'react-hook-form';
 import {
 	InputOTP,
 	InputOTPGroup,
 	InputOTPSeparator,
 	InputOTPSlot,
-} from "@/components/ui/input-otp";
+} from '@/components/ui/input-otp';
 
 const containerVariants = {
-  hidden: { opacity: 0, y: 50 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+	hidden: { opacity: 0, y: 50 },
+	visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
 };
 
 interface OTPFormData {
@@ -26,7 +26,7 @@ interface OTPFormData {
 export default function VerifyOTPPage() {
 	const router = useRouter();
 	const params = useParams();
-	const locale = params.locale || "en";
+	const locale = params.locale || 'en';
 	// Destructure verifyUserOTP and pendingUserEmail from the auth store.
 	const { verifyUserOTP, pendingUserEmail } = useAuthStore();
 	const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -36,7 +36,7 @@ export default function VerifyOTPPage() {
 		handleSubmit,
 		formState: { errors },
 	} = useForm<OTPFormData>({
-		defaultValues: { otp: "" },
+		defaultValues: { otp: '' },
 	});
 
 	// If there's no pending user, redirect away (e.g. to the login page)
@@ -49,7 +49,7 @@ export default function VerifyOTPPage() {
 	const verifyMutation = useMutation({
 		mutationFn: (otpCode: string) => verifyUserOTP(otpCode),
 		onSuccess: () => {
-			setSuccessMessage("OTP verified successfully!");
+			setSuccessMessage('OTP verified successfully!');
 			setTimeout(() => {
 				router.push(`/${locale}/settings`);
 			}, 2000);
@@ -66,13 +66,13 @@ export default function VerifyOTPPage() {
 
 	return (
 		<motion.div
-			className="flex items-center justify-center min-h-screen p-4 bg-background dark:bg-background-dark"
+			className="bg-background dark:bg-background-dark flex min-h-screen items-center justify-center p-4"
 			initial="hidden"
 			animate="visible"
 			variants={containerVariants}
 		>
-			<div className="w-full max-w-md p-8 bg-white rounded-lg shadow dark:bg-stone-800">
-				<h1 className="mb-4 text-2xl font-bold text-center text-primary">
+			<div className="w-full max-w-md rounded-lg bg-white p-8 shadow dark:bg-stone-800">
+				<h1 className="text-primary mb-4 text-center text-2xl font-bold">
 					Verify OTP
 				</h1>
 				<p className="mb-4 text-center text-gray-600 dark:text-gray-300">
@@ -86,18 +86,18 @@ export default function VerifyOTPPage() {
 						name="otp"
 						control={control}
 						rules={{
-							required: "OTP is required",
+							required: 'OTP is required',
 							minLength: {
 								value: 6,
-								message: "OTP must be 6 digits",
+								message: 'OTP must be 6 digits',
 							},
 							maxLength: {
 								value: 6,
-								message: "OTP must be 6 digits",
+								message: 'OTP must be 6 digits',
 							},
 							pattern: {
 								value: /^[0-9]{6}$/,
-								message: "OTP must contain only numbers",
+								message: 'OTP must contain only numbers',
 							},
 						}}
 						render={({ field, fieldState: { error } }) => (
@@ -120,7 +120,7 @@ export default function VerifyOTPPage() {
 									</InputOTPGroup>
 								</InputOTP>
 								{error && (
-									<p className="text-center text-destructive text-sm">
+									<p className="text-destructive text-center text-sm">
 										{error.message}
 									</p>
 								)}
@@ -128,20 +128,20 @@ export default function VerifyOTPPage() {
 						)}
 					/>
 					{verifyMutation.error && !errors.otp && (
-						<p className="text-center text-destructive text-sm">
+						<p className="text-destructive text-center text-sm">
 							{(verifyMutation.error as Error)?.message ||
-								"OTP verification failed"}
+								'OTP verification failed'}
 						</p>
 					)}
 					{successMessage && (
-						<p className="text-center text-success text-sm">
+						<p className="text-success text-center text-sm">
 							{successMessage}
 						</p>
 					)}
-					<Button type="submit" className="w-full mt-4">
+					<Button type="submit" className="mt-4 w-full">
 						{verifyMutation.isPending
-							? "Verifying..."
-							: "Verify OTP"}
+							? 'Verifying...'
+							: 'Verify OTP'}
 					</Button>
 				</form>
 			</div>

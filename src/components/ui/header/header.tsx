@@ -1,22 +1,22 @@
-"use client";
+'use client';
 
-import { cn } from "@/lib/utils";
-import { Link } from "@/i18n/routing";
-import { useState, useEffect } from "react";
-import { Button } from "../button";
-import { Menu, X } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ModeToggle } from "@/components/utils/mode-toggle";
-import { useTranslations } from "next-intl";
-import Image from "next/image";
+import { cn } from '@/lib/utils';
+import { Link } from '@/i18n/routing';
+import { useState, useEffect } from 'react';
+import { Button } from '../button';
+import { Menu, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ModeToggle } from '@/components/utils/mode-toggle';
+import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 
 const menuVariants = {
 	open: {
 		opacity: 1,
-		height: "auto",
+		height: 'auto',
 		transition: {
 			duration: 0.5,
-			ease: "easeInOut",
+			ease: 'easeInOut',
 		},
 	},
 	closed: {
@@ -24,36 +24,63 @@ const menuVariants = {
 		height: 0,
 		transition: {
 			duration: 0.5,
-			ease: "easeInOut",
+			ease: 'easeInOut',
 		},
 	},
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: -20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+	hidden: { opacity: 0, y: -20 },
+	visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
 };
 
 const hoverVariants = {
-	hover: { fontFamily: "font-mono", transition: { duration: 0.3 } },
+	hover: { fontFamily: 'font-mono', transition: { duration: 0.3 } },
 };
 
-export default function Header() {
-  const [scrolled, setScrolled] = useState(false);
+interface LinkItem {
+	linkName: string;
+	href: string;
+}
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 50) {
-        setScrolled(true);
-      } else {
-        setScrolled(false);
-      }
-    };
+interface CTAButton {
+	href: string;
+	label: string;
+	variant?:
+		| 'link'
+		| 'outline'
+		| 'default'
+		| 'destructive'
+		| 'secondary'
+		| 'ghost';
+	effect?:
+		| 'underline'
+		| 'expandIcon'
+		| 'ringHover'
+		| 'shine'
+		| 'shineHover'
+		| 'gooeyRight'
+		| 'gooeyLeft'
+		| 'hoverUnderline'
+		| null
+		| undefined;
+}
 
-		window.addEventListener("scroll", handleScroll);
-		return () => {
-			window.removeEventListener("scroll", handleScroll);
+interface HeaderProps {
+	links: LinkItem[];
+	ctaButtons: CTAButton[]; // New prop for CTA buttons
+}
+
+export default function Header({ links, ctaButtons }: HeaderProps) {
+	const [scrolled, setScrolled] = useState(false);
+
+	useEffect(() => {
+		const handleScroll = () => {
+			setScrolled(window.scrollY > 50);
 		};
+
+		window.addEventListener('scroll', handleScroll);
+		return () => window.removeEventListener('scroll', handleScroll);
 	}, []);
 
 	return (
@@ -62,35 +89,32 @@ export default function Header() {
 			animate={{ y: 0 }}
 			transition={{ duration: 0.5 }}
 			className={cn(
-				"fixed top-0 left-0 z-50 w-full bg-white select-none dark:bg-black",
+				'fixed top-0 left-0 z-50 w-full bg-white select-none dark:bg-black',
 				scrolled
-					? "border-b border-gray-200 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.3)] backdrop-blur-md transition-shadow duration-500 dark:border-gray-700 dark:shadow-[0_35px_60px_-15px_rgba(255,255,255,0.3)]"
-					: "transition-shadow duration-500"
+					? 'border-b border-gray-200 shadow-[0_35px_60px_-15px_rgba(0,0,0,0.3)] backdrop-blur-md transition-shadow duration-500 dark:border-gray-700 dark:shadow-[0_35px_60px_-15px_rgba(255,255,255,0.3)]'
+					: 'transition-shadow duration-500'
 			)}
 		>
-			<Navbar />
+			<Navbar links={links} ctaButtons={ctaButtons} />
 		</motion.header>
 	);
 }
 
-function Navbar() {
-  const [isOpen, setIsOpen] = useState(false);
+interface NavbarProps {
+	links: LinkItem[];
+	ctaButtons: CTAButton[]; // Prop drilling CTA buttons
+}
 
-	const t = useTranslations("Header");
-
-	const linksData = [
-		{ linkName: t("links.home"), href: "/" },
-		{ linkName: t("links.about"), href: "/about" },
-		{ linkName: t("links.services"), href: "/services" },
-		{ linkName: t("links.contact"), href: "/contact" },
-	];
+function Navbar({ links, ctaButtons }: NavbarProps) {
+	const [isOpen, setIsOpen] = useState(false);
+	const t = useTranslations('Header');
 
 	return (
 		<motion.div
 			initial={false}
-			animate={isOpen ? "open" : "closed"}
+			animate={isOpen ? 'open' : 'closed'}
 			className={cn(
-				"flex flex-col items-center justify-between px-5 py-1 md:flex-row md:px-20 lg:px-40"
+				'flex flex-col items-center justify-between px-5 py-1 md:flex-row md:px-20 lg:px-40'
 			)}
 		>
 			<motion.div
@@ -100,7 +124,6 @@ function Navbar() {
 				className="flex w-full items-center justify-between md:w-auto"
 			>
 				<Link href="/" className="flex items-center gap-1">
-					{/* Daya Logo */}
 					<Image
 						src="/daya-logo.svg"
 						alt="Daya Logo"
@@ -110,17 +133,16 @@ function Navbar() {
 					/>
 					<h1
 						className={cn(
-							"text-2xl font-bold text-black lg:text-3xl dark:text-white"
+							'text-2xl font-bold text-black lg:text-3xl dark:text-white'
 						)}
 					>
-						{t("logo")}
+						{t('logo')}
 					</h1>
 				</Link>
-				{/* Hamburger Button for Mobile */}
 				<div className="md:hidden">
 					<Button
-						variant={"link"}
-						effect={"shine"}
+						variant={'link'}
+						effect={'shine'}
 						className="bg-black text-lg font-[300] text-white dark:bg-white dark:text-black"
 						onClick={() => setIsOpen(!isOpen)}
 					>
@@ -144,18 +166,20 @@ function Navbar() {
 				}}
 				className="hidden items-center gap-5 md:flex"
 			>
-				<Links links={linksData} />
-				<CTAButtons />
+				<Links links={links} />
+				<CTAButtons buttons={ctaButtons} />
 				<ModeToggle />
 			</motion.div>
 			<motion.div
 				initial={false}
-				animate={isOpen ? "open" : "closed"}
+				animate={isOpen ? 'open' : 'closed'}
 				variants={menuVariants}
-				className={cn("flex w-full flex-col md:hidden")}
+				className={cn('flex w-full flex-col md:hidden')}
 			>
 				<AnimatePresence>
-					{isOpen && <MobileLinks links={linksData} />}
+					{isOpen && (
+						<MobileLinks links={links} ctaButtons={ctaButtons} />
+					)}
 				</AnimatePresence>
 			</motion.div>
 		</motion.div>
@@ -163,15 +187,12 @@ function Navbar() {
 }
 
 interface LinkProps {
-  links: {
-    linkName: string;
-    href: string;
-  }[];
+	links: LinkItem[];
 }
 
 function Links({ links }: LinkProps) {
 	return (
-		<ul className={cn("flex items-center", "")}>
+		<ul className={cn('flex items-center')}>
 			{links.map((link) => (
 				<motion.li
 					key={link.href}
@@ -190,8 +211,8 @@ function Links({ links }: LinkProps) {
 				>
 					<motion.div whileHover="hover" variants={hoverVariants}>
 						<Button
-							variant={"link"}
-							effect={"hoverUnderline"}
+							variant={'link'}
+							effect={'hoverUnderline'}
 							className="text-lg font-[300] text-black dark:text-white"
 						>
 							<Link href={link.href}>{link.linkName}</Link>
@@ -204,42 +225,40 @@ function Links({ links }: LinkProps) {
 }
 
 interface MobileLinksProps {
-  links: {
-    linkName: string;
-    href: string;
-  }[];
+	links: LinkItem[];
+	ctaButtons: CTAButton[]; // Prop drilling CTA buttons for mobile view
 }
 
-function MobileLinks({ links }: MobileLinksProps) {
+function MobileLinks({ links, ctaButtons }: MobileLinksProps) {
 	return (
 		<motion.nav
 			initial={false}
-			animate={"open"}
-			exit={"closed"}
+			animate={'open'}
+			exit={'closed'}
 			variants={menuVariants}
-			className={cn("mt-10 flex flex-col items-center gap-5")}
+			className={cn('mt-10 flex flex-col items-center gap-5')}
 		>
 			<Links links={links} />
-			<CTAButtons />
+			<CTAButtons buttons={ctaButtons} />
 			<ModeToggle />
 		</motion.nav>
 	);
 }
 
-function CTAButtons() {
-	return (
-		<div className={cn("flex gap-5")}>
-			<Link href={"/login"}>
-				<Button variant="secondary" effect={"gooeyLeft"}>
-					Login
-				</Button>
-			</Link>
+interface CTAButtonsProps {
+	buttons: CTAButton[];
+}
 
-			<Link href={"/register"}>
-				<Button variant="outline" effect={"gooeyRight"}>
-					Register
-				</Button>
-			</Link>
+function CTAButtons({ buttons }: CTAButtonsProps) {
+	return (
+		<div className={cn('flex gap-5')}>
+			{buttons.map((button, index) => (
+				<Link key={index} href={button.href}>
+					<Button variant={button.variant} effect={button.effect}>
+						{button.label}
+					</Button>
+				</Link>
+			))}
 		</div>
 	);
 }
