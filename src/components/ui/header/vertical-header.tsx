@@ -1,11 +1,21 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { Link } from '@/i18n/routing';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/utils/mode-toggle';
-import { useAuthStore } from '@/stores/authStore';
+
+interface NavLink {
+	href: string;
+	label: string;
+}
+
+interface VerticalSidebarProps {
+	heading: string;
+	headingLink: string;
+	links: NavLink[];
+	onLogout: () => void;
+}
 
 const sidebarVariants = {
 	hidden: { x: -250, opacity: 0 },
@@ -16,15 +26,12 @@ const sidebarVariants = {
 	},
 };
 
-export default function VerticalSidebar() {
-	const router = useRouter();
-	const { logoutUser } = useAuthStore();
-
-	const handleLogout = async () => {
-		await logoutUser();
-		router.push('/en/login');
-	};
-
+export default function VerticalSidebar({
+	heading,
+	headingLink,
+	links,
+	onLogout,
+}: VerticalSidebarProps) {
 	return (
 		<motion.aside
 			initial="hidden"
@@ -34,40 +41,25 @@ export default function VerticalSidebar() {
 		>
 			<div className="mb-8">
 				<h2 className="text-2xl font-bold text-gray-800 dark:text-white">
-					<Link href="/settings">Settings</Link>
+					<Link href={headingLink}>{heading}</Link>
 				</h2>
 			</div>
 			<nav className="flex flex-col gap-4">
-				<Link
-					href="/settings/delete-account"
-					className="text-lg text-gray-700 hover:text-black dark:text-white dark:hover:text-white"
-				>
-					Delete Account
-				</Link>
-				<Link
-					href="/settings/password-change"
-					className="text-lg text-gray-700 hover:text-black dark:text-white dark:hover:text-white"
-				>
-					Change Password
-				</Link>
-				<Link
-					href="/settings/two-factor"
-					className="text-lg text-gray-700 hover:text-black dark:text-white dark:hover:text-white"
-				>
-					Two-Factor Authentication
-				</Link>
-				<Link
-					href="/settings/verify-email"
-					className="text-lg text-gray-700 hover:text-black dark:text-white dark:hover:text-white"
-				>
-					Verify Email
-				</Link>
+				{links.map((link) => (
+					<Link
+						key={link.href}
+						href={link.href}
+						className="text-lg text-gray-700 hover:text-black dark:text-white dark:hover:text-white"
+					>
+						{link.label}
+					</Link>
+				))}
 			</nav>
 			<div className="mt-auto pt-8">
 				<ModeToggle />
 				<Button
 					variant="outline"
-					onClick={handleLogout}
+					onClick={onLogout}
 					className="mt-4 w-full"
 				>
 					Logout

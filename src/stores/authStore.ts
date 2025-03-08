@@ -1,49 +1,69 @@
 import { create } from 'zustand';
 import apiClient from '@/apiClient';
 
-interface Admin {
+//////////////////////
+// Type Definitions //
+//////////////////////
+
+export interface Admin {
 	id: string;
 	email: string;
 	name: string;
+	twoFactorEnabled?: boolean;
+	isVerified: boolean;
+	dateOfBirth?: string;
 }
 
-interface User {
+export interface User {
 	id: string;
 	email: string;
 	name: string;
 	twoFactorEnabled: boolean;
+	isVerified: boolean;
 	dateOfBirth?: string;
 	emergencyRecoveryContact?: string;
-	isVerified: boolean;
 }
 
+//////////////////////
+// Store Interface  //
+//////////////////////
+
 interface AuthState {
-	// Admin state
+	// Admin state and functions
 	admin: Admin | null;
 	isAuthenticatedAdmin: boolean;
-	// User state
-	user: User | null;
-	isAuthenticatedUser: boolean;
-	// New flag for email verification (can be derived from user.isVerified)
-	isEmailVerified: boolean;
-	// A temporary email stored when 2FA is required
-	pendingUserEmail: string | null;
-	// Global flags
-	error: string | null;
-	isLoading: boolean;
-	isCheckingAuth: boolean;
-	// Admin functions
 	registerAdmin: (
 		admin_name: string,
 		admin_email: string,
 		password: string,
-		key: string
+		confirmPassword: string,
+		dateOfBirth?: string
 	) => Promise<void>;
 	loginAdmin: (admin_email: string, password: string) => Promise<void>;
 	logoutAdmin: () => Promise<void>;
 	checkAdminAuth: () => Promise<void>;
 	checkAdminProfile: () => Promise<void>;
-	// User functions
+	updateAdminProfile: (
+		data: Partial<Admin> & { password?: string }
+	) => Promise<void>;
+	deleteAdminAccount: () => Promise<void>;
+	// Extra admin functions
+	verifyAdminEmail: (token: string) => Promise<boolean>;
+	resendAdminVerificationEmail: (email: string) => Promise<string>;
+	forgotPasswordAdmin: (email: string) => Promise<string>;
+	resetPasswordAdmin: (
+		token: string,
+		newPassword: string,
+		confirmPassword: string
+	) => Promise<string>;
+	verifyAdminOTP: (otp: string) => Promise<void>;
+	checkAdminVerificationStatus: () => Promise<void>;
+	// New admin function: Toggle Two-Factor Authentication
+	toggleAdminTwoFactor: () => Promise<void>;
+
+	// User state and functions
+	user: User | null;
+	isAuthenticatedUser: boolean;
 	registerUser: (
 		name: string,
 		email: string,
@@ -59,53 +79,64 @@ interface AuthState {
 	logoutUser: () => Promise<void>;
 	checkUserAuth: () => Promise<void>;
 	checkUserProfile: () => Promise<void>;
-	// New functions:
 	updateUserPassword: (newPassword: string) => Promise<void>;
 	toggleUserTwoFactor: () => Promise<void>;
 	deleteUserAccount: () => Promise<void>;
 	verifyUserOTP: (otp: string) => Promise<void>;
-	// Function to check email verification status
 	checkUserVerificationStatus: () => Promise<void>;
-	// New function: Verify user email using token from the verification URL
 	verifyUserEmail: (token: string) => Promise<boolean>;
-	// New function: Resend the verification email given a user's email address.
-	resendVerificationEmail: (email: string) => Promise<string>;
-	// NEW: Forgot Password function
+	resendUserVerificationEmail: (email: string) => Promise<string>;
 	forgotPassword: (email: string) => Promise<string>;
-	// NEW: Reset Password function
 	resetPassword: (
 		token: string,
 		newPassword: string,
 		confirmPassword: string
 	) => Promise<string>;
+
+	// Global flags
+	error: string | null;
+	isLoading: boolean;
+	isCheckingAuth: boolean;
+
+	// Extra keys for verification handling
+	pendingUserEmail: string | null;
+	isEmailVerified: boolean;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
-	// Initial state for admin
+	// Admin initial state
 	admin: null,
 	isAuthenticatedAdmin: false,
-	// Initial state for user
+	// User initial state
 	user: null,
 	isAuthenticatedUser: false,
-	isEmailVerified: false,
+	// Extra keys
 	pendingUserEmail: null,
-	// Common flags
+	isEmailVerified: false,
+	// Global flags
 	error: null,
 	isLoading: false,
 	isCheckingAuth: true,
 
-	// =========================
-	// Admin Functions
-	// =========================
+	//////////////////////////////////
+	// Admin Functions              //
+	//////////////////////////////////
 
-	registerAdmin: async (admin_name, admin_email, password, key) => {
+	registerAdmin: async (
+		admin_name,
+		admin_email,
+		password,
+		confirmPassword,
+		dateOfBirth
+	) => {
 		set({ isLoading: true, error: null });
 		try {
 			const response = await apiClient.post('/admin/register', {
 				name: admin_name,
 				email: admin_email,
 				password,
-				adminKey: key,
+				confirmPassword,
+				dateOfBirth,
 			});
 			set({
 				admin: response.data.data,
@@ -200,9 +231,231 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 		}
 	},
 
-	// =========================
-	// User Functions
-	// =========================
+	updateAdminProfile: async (data) => {
+		set({ isLoading: true, error: null });
+		try {
+			const response = await apiClient.put(
+				'/admin/update-profile',
+				data,
+				{
+					withCredentials: true,
+				}
+			);
+			set({
+				admin: response.data.data,
+				isLoading: false,
+			});
+		} catch (error: unknown) {
+			let errorMessage = 'Error updating admin profile';
+			if (error instanceof Error) {
+				errorMessage = error.message;
+			}
+			set({ error: errorMessage, isLoading: false });
+			throw error;
+		}
+	},
+
+	deleteAdminAccount: async () => {
+		set({ isLoading: true, error: null });
+		try {
+			await apiClient.delete('/admin/delete-account', {
+				withCredentials: true,
+			});
+			set({
+				admin: null,
+				isAuthenticatedAdmin: false,
+				isLoading: false,
+			});
+		} catch (error: unknown) {
+			let errorMessage = 'Error deleting admin account';
+			if (error instanceof Error) {
+				errorMessage = error.message;
+			}
+			set({ error: errorMessage, isLoading: false });
+			throw error;
+		}
+	},
+
+	// Extra Admin Functions
+
+	verifyAdminEmail: async (token: string) => {
+		set({ isLoading: true, error: null });
+		try {
+			const response = await apiClient.get(
+				`/admin/verify-email?token=${token}`,
+				{
+					withCredentials: true,
+				}
+			);
+			const verified = response.data.data?.verified;
+			set({ isLoading: false });
+			return verified;
+		} catch (error: unknown) {
+			let errorMessage = 'Error verifying admin email';
+			if (error instanceof Error) {
+				errorMessage = error.message;
+			}
+			set({ error: errorMessage, isLoading: false });
+			throw error;
+		}
+	},
+
+	resendAdminVerificationEmail: async (email: string) => {
+		set({ isLoading: true, error: null });
+		try {
+			const response = await apiClient.post(
+				'/admin/resend-verification',
+				{ email },
+				{ withCredentials: true }
+			);
+			set({ isLoading: false });
+			return response.data.message;
+		} catch (error: unknown) {
+			let errorMessage = 'Error resending admin verification email';
+			if (error instanceof Error) {
+				errorMessage = error.message;
+			}
+			set({ error: errorMessage, isLoading: false });
+			throw error;
+		}
+	},
+
+	forgotPasswordAdmin: async (email: string) => {
+		set({ isLoading: true, error: null });
+		try {
+			const response = await apiClient.post(
+				'/admin/forgot-password',
+				{ email },
+				{ withCredentials: true }
+			);
+			set({ isLoading: false });
+			return response.data.message;
+		} catch (error: unknown) {
+			let errorMessage = 'Error sending admin password reset email';
+			if (error instanceof Error) {
+				errorMessage = error.message;
+			}
+			set({ error: errorMessage, isLoading: false });
+			throw error;
+		}
+	},
+
+	resetPasswordAdmin: async (
+		token: string,
+		newPassword: string,
+		confirmPassword: string
+	) => {
+		set({ isLoading: true, error: null });
+		try {
+			const response = await apiClient.post(
+				'/admin/reset-password',
+				{ token, newPassword, confirmPassword },
+				{ withCredentials: true }
+			);
+			set({ isLoading: false });
+			return response.data.message;
+		} catch (error: unknown) {
+			let errorMessage = 'Error resetting admin password';
+			if (error instanceof Error) {
+				errorMessage = error.message;
+			}
+			set({ error: errorMessage, isLoading: false });
+			throw error;
+		}
+	},
+
+	verifyAdminOTP: async (otp: string) => {
+		set({ isLoading: true, error: null });
+		try {
+			const email = get().admin?.email;
+			if (!email) {
+				throw new Error(
+					'No admin email available for OTP verification.'
+				);
+			}
+			const response = await apiClient.post(
+				'/admin/verify-otp',
+				{ email, otp },
+				{ withCredentials: true }
+			);
+			set({
+				admin: response.data.data,
+				isAuthenticatedAdmin: true,
+				isLoading: false,
+			});
+		} catch (error: unknown) {
+			let errorMessage = 'Error verifying admin OTP';
+			if (error instanceof Error) {
+				errorMessage = error.message;
+			}
+			set({ error: errorMessage, isLoading: false });
+			throw error;
+		}
+	},
+
+	checkAdminVerificationStatus: async () => {
+		try {
+			const response = await apiClient.get('/admin/verification-status', {
+				withCredentials: true,
+			});
+			const verified = response.data.data?.verified;
+			if (get().admin) {
+				set((state) => ({
+					admin: { ...state.admin!, isVerified: verified },
+				}));
+			}
+		} catch (error: unknown) {
+			if (get().admin) {
+				set((state) => ({
+					admin: { ...state.admin!, isVerified: false },
+				}));
+			}
+		}
+	},
+
+	// New Admin Function: Toggle Two-Factor Authentication
+	toggleAdminTwoFactor: async () => {
+		set({ isLoading: true, error: null });
+		try {
+			const currentAdmin = get().admin;
+			if (currentAdmin && currentAdmin.twoFactorEnabled) {
+				await apiClient.post(
+					'/admin/disable-two-factor',
+					{},
+					{ withCredentials: true }
+				);
+				set((state) => ({
+					admin: state.admin
+						? { ...state.admin, twoFactorEnabled: false }
+						: null,
+					isLoading: false,
+				}));
+			} else {
+				await apiClient.post(
+					'/admin/enable-two-factor',
+					{},
+					{ withCredentials: true }
+				);
+				set((state) => ({
+					admin: state.admin
+						? { ...state.admin, twoFactorEnabled: true }
+						: null,
+					isLoading: false,
+				}));
+			}
+		} catch (error: unknown) {
+			let errorMessage = 'Error toggling admin 2FA preferences';
+			if (error instanceof Error) {
+				errorMessage = error.message;
+			}
+			set({ error: errorMessage, isLoading: false });
+			throw error;
+		}
+	},
+
+	//////////////////////////////////
+	// User Functions               //
+	//////////////////////////////////
 
 	registerUser: async (
 		name,
@@ -276,7 +529,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 				user: null,
 				isAuthenticatedUser: false,
 				isLoading: false,
-				isEmailVerified: false,
 			});
 		} catch (error: unknown) {
 			let errorMessage = 'Error logging out user';
@@ -298,14 +550,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 				user: response.data.data,
 				isAuthenticatedUser: true,
 				isCheckingAuth: false,
-				isEmailVerified: response.data.data.isVerified,
 			});
 		} catch (error: unknown) {
 			set({
 				user: null,
 				isAuthenticatedUser: false,
 				isCheckingAuth: false,
-				isEmailVerified: false,
 			});
 		}
 	},
@@ -397,7 +647,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 				user: null,
 				isAuthenticatedUser: false,
 				isLoading: false,
-				isEmailVerified: false,
 			});
 		} catch (error: unknown) {
 			let errorMessage = 'Error deleting account';
@@ -443,9 +692,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 			const response = await apiClient.get('/user/verification-status', {
 				withCredentials: true,
 			});
-			set({
-				isEmailVerified: response.data.data.verified,
-			});
+			set({ isEmailVerified: response.data.data.verified });
 		} catch (error: unknown) {
 			set({ isEmailVerified: false });
 		}
@@ -456,11 +703,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 		try {
 			const response = await apiClient.get(
 				`/user/verify-email?token=${token}`,
-				{
-					withCredentials: true,
-				}
+				{ withCredentials: true }
 			);
-			const verified = response.data.data.verified;
+			const verified = response.data.data?.verified;
 			set({ isEmailVerified: verified, isLoading: false });
 			return verified;
 		} catch (error: unknown) {
@@ -477,7 +722,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 		}
 	},
 
-	resendVerificationEmail: async (email: string) => {
+	resendUserVerificationEmail: async (email: string) => {
 		set({ isLoading: true, error: null });
 		try {
 			const response = await apiClient.post(
@@ -497,17 +742,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 		}
 	},
 
-	// =========================
-	// New Functions
-	// =========================
-
 	forgotPassword: async (email: string) => {
 		set({ isLoading: true, error: null });
 		try {
-			const response = await apiClient.post(
-				'http://localhost:4000/api/v1/user/forgot-password',
-				{ email }
-			);
+			const response = await apiClient.post('/user/forgot-password', {
+				email,
+			});
 			set({ isLoading: false });
 			return response.data.message;
 		} catch (error: unknown) {
@@ -528,7 +768,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 		set({ isLoading: true, error: null });
 		try {
 			const response = await apiClient.post(
-				`http://localhost:4000/api/v1/user/reset-password?token=${token}`,
+				'/user/reset-password',
 				{ token, newPassword, confirmPassword },
 				{ withCredentials: true }
 			);

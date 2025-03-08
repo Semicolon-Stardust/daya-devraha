@@ -12,7 +12,7 @@ function getGreeting() {
 	return 'Good evening';
 }
 
-export default function SettingsLayout({
+export default function AdminSettingsLayout({
 	children,
 }: {
 	children: React.ReactNode;
@@ -21,40 +21,40 @@ export default function SettingsLayout({
 	const locale = params.locale || 'en';
 	const router = useRouter();
 	const {
-		user,
+		admin,
 		isCheckingAuth,
-		isAuthenticatedUser,
-		checkUserAuth,
-		checkUserProfile,
-		logoutUser,
+		isAuthenticatedAdmin,
+		checkAdminAuth,
+		checkAdminProfile,
+		logoutAdmin,
 	} = useAuthStore();
 
 	const handleLogout = async () => {
-		await logoutUser();
-		router.push('/en/login');
+		await logoutAdmin();
+		router.push('/en/admin/login');
 	};
-	// Check user authentication on mount.
+
+	// Check admin authentication on mount.
 	useEffect(() => {
 		(async () => {
-			await checkUserAuth();
+			await checkAdminAuth();
 		})();
-	}, [checkUserAuth]);
+	}, [checkAdminAuth]);
 
-	// Once authenticated, fetch the user profile to get the username.
+	// Once authenticated, fetch the full admin profile.
 	useEffect(() => {
-		if (isAuthenticatedUser) {
-			checkUserProfile();
+		if (isAuthenticatedAdmin) {
+			checkAdminProfile();
 		}
-	}, [isAuthenticatedUser, checkUserProfile]);
+	}, [isAuthenticatedAdmin, checkAdminProfile]);
 
-	// Redirect to login if not authenticated once checking is complete.
+	// Redirect to admin login if not authenticated.
 	useEffect(() => {
-		if (!isCheckingAuth && !isAuthenticatedUser) {
-			router.push(`/${locale}/login`);
+		if (!isCheckingAuth && !isAuthenticatedAdmin) {
+			router.push(`/${locale}/admin/login`);
 		}
-	}, [isCheckingAuth, isAuthenticatedUser, router, locale]);
+	}, [isCheckingAuth, isAuthenticatedAdmin, router, locale]);
 
-	// While waiting for the auth check to finish, show a loading indicator.
 	if (isCheckingAuth) {
 		return (
 			<div className="flex h-screen items-center justify-center">
@@ -68,24 +68,24 @@ export default function SettingsLayout({
 			<div className="flex">
 				{/* Vertical Sidebar */}
 				<VerticalSidebar
-					heading="User Settings"
-					headingLink={`/settings`}
+					heading="Admin Settings"
+					headingLink={`/admin/settings`}
 					links={[
 						{
 							label: 'Verify Email',
-							href: `/settings/verify-email`,
+							href: `/admin/settings/verify-email`,
 						},
 						{
 							label: 'Change Password',
-							href: `/settings/password-change`,
+							href: `/admin/settings/password-change`,
 						},
 						{
 							label: 'Two Factor Authentication',
-							href: `/settings/two-factor`,
+							href: `/admin/settings/two-factor`,
 						},
 						{
 							label: 'Delete Account',
-							href: `/settings/delete-account`,
+							href: `/admin/settings/delete-account`,
 						},
 					]}
 					onLogout={handleLogout}
@@ -93,10 +93,10 @@ export default function SettingsLayout({
 				{/* Main content area */}
 				<main className="flex-1 p-8">
 					<div className="mx-auto max-w-3xl rounded-lg bg-white p-6 shadow dark:bg-stone-800">
-						{user && (
+						{admin && (
 							<h1 className="text-3xl font-bold text-black dark:text-white">
 								{getGreeting()},{' '}
-								{user?.name?.split(' ')[0] || 'User'}
+								{admin?.name?.split(' ')[0] || 'Admin'}
 							</h1>
 						)}
 						{children}

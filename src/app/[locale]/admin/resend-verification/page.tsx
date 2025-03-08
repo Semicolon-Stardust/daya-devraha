@@ -10,8 +10,8 @@ type ResendFormData = {
 	email: string;
 };
 
-export default function ResendVerificationPage() {
-	const { resendUserVerificationEmail, isLoading, error } = useAuthStore();
+export default function AdminResendVerificationPage() {
+	const { resendAdminVerificationEmail, isLoading, error } = useAuthStore();
 	const router = useRouter();
 	const params = useParams();
 	const locale = params.locale || 'en';
@@ -30,9 +30,8 @@ export default function ResendVerificationPage() {
 		setResendMessage(null);
 		setResendError(null);
 		try {
-			const message = await resendUserVerificationEmail(data.email);
+			const message = await resendAdminVerificationEmail(data.email);
 			setResendMessage(message || 'Verification email resent.');
-			// Optionally hide the form after submission.
 			setShowForm(false);
 		} catch (err) {
 			setResendError('Failed to resend verification email.');
@@ -119,7 +118,7 @@ export default function ResendVerificationPage() {
 
 			<button
 				className="mt-6 rounded bg-red-500 px-4 py-2 text-white"
-				onClick={() => router.push(`/${locale}/login`)}
+				onClick={() => router.push(`/${locale}/admin/login`)}
 			>
 				Back to Login
 			</button>

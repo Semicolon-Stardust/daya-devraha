@@ -17,13 +17,13 @@ export default function Layout({ children }: LayoutProps) {
 				]}
 				ctaButtons={[
 					{
-						href: '/login',
+						href: '/admin/login',
 						label: 'Login',
 						variant: 'outline',
 						effect: 'hoverUnderline',
 					},
 					{
-						href: '/register',
+						href: '/admin/register',
 						label: 'Register',
 						variant: 'default',
 						effect: 'hoverUnderline',
